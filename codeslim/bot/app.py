@@ -67,8 +67,20 @@ def create_bot_app(
     Returns:
         Configured FastAPI application instance.
     """
-    token = github_token or os.environ.get("CODESLIM_GITHUB_TOKEN", "")
-    secret = webhook_secret or os.environ.get("CODESLIM_GITHUB_WEBHOOK_SECRET", "")
+    token = (github_token or os.environ.get("CODESLIM_GITHUB_TOKEN", "")).strip()
+    if not token or token in ("CODESLIM_GITHUB_TOKEN", "ghp_xxx", "your_github_token_here"):
+        try:
+            import subprocess
+
+            proc = subprocess.run(["gh", "auth", "token"], capture_output=True, text=True, timeout=5)
+            if proc.returncode == 0 and proc.stdout.strip():
+                token = proc.stdout.strip()
+        except Exception:
+            pass
+
+    secret = (webhook_secret or os.environ.get("CODESLIM_GITHUB_WEBHOOK_SECRET", "")).strip()
+    if secret in ("CODESLIM_GITHUB_WEBHOOK_SECRET", "your_webhook_secret_here"):
+        secret = ""
 
     app = FastAPI(
         title="CodeSlim GitHub Bot Server",

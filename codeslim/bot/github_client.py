@@ -45,12 +45,14 @@ class GitHubClient:
         Args:
             token: GitHub PAT or App installation token.
         """
-        self.token = token
+        clean_token = token.strip() if token else ""
+        self.token = clean_token
         self._headers = {
-            "Authorization": f"Bearer {token}",
             "Accept": "application/vnd.github+json",
             "X-GitHub-Api-Version": "2022-11-28",
         }
+        if clean_token:
+            self._headers["Authorization"] = f"Bearer {clean_token}"
 
     async def get_pr_files(self, repo_full_name: str, pr_number: int) -> list[GitHubPRFile]:
         """
