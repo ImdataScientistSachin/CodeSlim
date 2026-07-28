@@ -1,7 +1,7 @@
 # 🚀 CodeSlim: The Agentic Code Analysis, Context Minimizer & Guardrail Engine
 
 [![Python Version](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-76%2F76%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-81%2F81%20passing-brightgreen.svg)](tests/)
 [![Architecture](https://img.shields.io/badge/architecture-Multi--Agent%20Pipeline-orange.svg)](#-architecture--data-flow)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Local-First AI](https://img.shields.io/badge/AI-Ollama%20%7C%20OpenAI-purple.svg)](#-local-first-llm-architecture)
@@ -162,6 +162,14 @@ Install local Git pre-commit hook into `.git/hooks/pre-commit` to clean dead cod
 
 ```bash
 codeslim install-hooks
+```
+
+### 🎨 6. Launch Web Studio Ultimate (`codeslim ui`)
+
+Launch the unified Tokyo Night Web Studio interactive workspace in your browser:
+
+```bash
+codeslim ui --port 8000
 ```
 
 ---
