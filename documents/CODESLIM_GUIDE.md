@@ -1325,9 +1325,10 @@ WEEK 4 — Teach It
 | **Session A**   | Deterministic LibCST Auto-Apply Engine (Node 2.5 `deterministic_fix_node`)          | ✅ Complete (2/2 tests passing)                         |
 | **Session B**   | Function-Level Chunked LLM Refactoring (`refactor_function_chunk`)                 | ✅ Complete (1/1 test passing)                          |
 | **Session C/D** | Confidence Tier Summary, Duplication Bloat Entries, Prompt Hardening               | ✅ Complete                                             |
-| **Phase 7**     | Auto-Fix GitHub PR Bot (Webhook Models, GitHub REST Client, PR Diff Handler)       | ✅ Complete (16/16 tests passing)                       |
+| **Phase 7**     | Auto-Fix GitHub PR Bot (FastAPI Webhooks, GitHub REST Client, PR Diff Handler)      | ✅ Complete (16/16 tests passing)                       |
+| **Phase 8**     | Git Pre-Commit Guardrail Hook (`codeslim install-hooks`, chmod +x, stage auto-add)  | ✅ Complete (3/3 tests passing)                         |
 
 ---
 
-_Last Updated: All Phases & Sessions Complete — All 63 unit & integration tests passing cleanly in 1.65s._
+_Last Updated: All 8 Phases & Sessions Complete — All 76 unit & integration tests passing cleanly in 1.99s._
 

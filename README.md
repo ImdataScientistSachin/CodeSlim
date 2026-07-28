@@ -1,12 +1,12 @@
-# 🚀 CodeSlim: The Agentic Code Analysis & Context Minimizer Engine
+# 🚀 CodeSlim: The Agentic Code Analysis, Context Minimizer & Guardrail Engine
 
 [![Python Version](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-63%2F63%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-76%2F76%20passing-brightgreen.svg)](tests/)
 [![Architecture](https://img.shields.io/badge/architecture-Multi--Agent%20Pipeline-orange.svg)](#-architecture--data-flow)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Local-First AI](https://img.shields.io/badge/AI-Ollama%20%7C%20OpenAI-purple.svg)](#-local-first-llm-architecture)
 
-> **CodeSlim** is an open-source, production-grade **Agentic AI CLI tool** that sits between your Python codebase and LLMs. It uses deterministic static analysis sensors (Radon, Vulture, Lizard, AST) to pre-process source files, prunes token bloat using lossless LibCST Concrete Syntax Trees, calls local/cloud LLMs with focused context, and enforces **AST syntax guardrails** to prevent hallucinations from ever corrupting your codebase.
+> **CodeSlim** is an open-source, production-grade **Agentic AI CLI Engine** that sits between Python codebases and LLMs. It uses deterministic static analysis sensors (Radon, Vulture, Lizard, AST) to pre-process source files, prunes token bloat using lossless LibCST Concrete Syntax Trees, calls local/cloud LLMs with focused context, and enforces **AST syntax guardrails** to prevent hallucinations from ever corrupting your codebase.
 
 ---
 
@@ -16,40 +16,69 @@
 * 🛡️ **0% Hallucination Safety Gate**: AST `ast.parse()` and public signature preservation checks reject broken syntax or deleted APIs.
 * 🔒 **Local-First Privacy**: Runs free, private local LLMs (Ollama `qwen2.5-coder:3b` under 2.2GB VRAM) with automatic cloud fallback to OpenAI (`gpt-4o-mini`).
 * 🎯 **3-Tier Confidence Classifier**: Categorizes refactoring actions into `Auto-Safe` (dead code), `Suggest` (simplification), and `Flag-Only` (structural extraction).
-* 📊 **Multi-Target Output Formatters**: Emits rich terminal panels, structured JSON for CI/CD, and GitHub Markdown tables for PR comment bots.
-* 🔭 **Project Observatory Dashboard**: Multi-file codebase-level scanning with visual file treemaps, cross-file phantom function detection, and hallucinated import spread maps.
+* 📊 **Multi-Target Output Formatters**: Emits Rich terminal panels, structured JSON for CI/CD, GitHub Markdown tables, and interactive HTML Observatories.
+* 🔭 **Project Observatory Dashboard**: Multi-file codebase-level scanning with visual file treemaps, cross-file phantom function detection, and Tokyo Night interactive diff modal.
+* 🤖 **Auto-Fix GitHub PR Bot**: Asynchronous FastAPI webhook receiver with HMAC-SHA256 signature verification that automatically reviews Pull Requests and auto-commits Tier-1 dead import removals.
+* 🪝 **Git Pre-Commit Guardrail Hook**: Single command `codeslim install-hooks` installs local Git hooks to strip dead imports in < 50ms before code leaves your machine.
 
 ---
 
 ## 📐 Architecture & Data Flow
 
-CodeSlim executes a **5-stage linear pipeline** using specialized autonomous agents:
+CodeSlim executes an autonomous **6-stage pipeline** using specialized node agents:
 
 ```
-                          ┌──────────────────────────────┐
-                          │  CODESLIM PIPELINE PIPELINE  │
-                          └──────────────┬───────────────┘
-                                         │
- ┌───────────────────────────────────────┼───────────────────────────────────────┐
- │                                       │                                       │
- ▼                                       ▼                                       ▼
-1. 🔍 STATIC ANALYSIS AGENT       2. ✂️ CONTEXT MINIMIZER AGENT     3. 🤖 LLM REASONER AGENT
-   (Deterministic Sensors)           (Prompt & Token Engineer)       (Async Intelligence Engine)
-   • Radon Cyclomatic Complexity     • LibCST docstring/dead pruner  • Ollama local qwen2.5-coder
-   • Vulture Dead Code Detector      • tiktoken budget calculator    • OpenAI gpt-4o-mini fallback
-   • Lizard Cognitive Complexity     • Isolated prompt sandboxing    • Escalating JSON error retries
-   • AST Nesting & Import Visitor
- │                                       │                                       │
- └───────────────────────────────────────┼───────────────────────────────────────┘
-                                         │
- ┌───────────────────────────────────────┴───────────────────────────────────────┐
- │                                                                               │
- ▼                                                                               ▼
-4. 🛡️ HALLUCINATION GUARDRAIL AGENT                        5. ⚙️ PIPELINE ORCHESTRATOR AGENT
-   (Safety & Diff Auditor)                                    (State Machine Controller)
-   • AST Syntax ast.parse() Validation                        • LangGraph State Machine
-   • Public Signature Preservation Check                      • Subcommands: analyze / optimize / scan
-   • 3-Tier Risk Categorization                               • Formatters: Rich / JSON / PR / Observatory
+  USER INPUT (.py File or Directory / GitHub Webhook)
+           │
+           ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │ 1. STATIC SENSOR NODE (codeslim/analyzers/...)             │
+  │    • Radon (Cyclomatic Complexity CC > 10)                  │
+  │    • Vulture (Dead code & unused imports min_conf >= 80)    │
+  │    • Lizard (Cognitive complexity & NLOC)                  │
+  │    • AST Visitor (Nesting depth & package imports)        │
+  │    • Duplication (MD5 token hashing sliding window)        │
+  └──────────────────────────────┬──────────────────────────────┘
+                                 │ FileMetrics & BloatMap
+                                 ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │ 2. CONTEXT MINIMIZER NODE (codeslim/context/...)           │
+  │    • LibCST Lossless Transformer (Strips docstrings & dead) │
+  │    • Token Budget Enforcement (tiktoken / fallback)         │
+  │    • Bloat Score Calculation (0.0 to 100.0 Grade A-F)        │
+  └──────────────────────────────┬──────────────────────────────┘
+                                 │ Pruned Code & Bloat Score
+                                 ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │ 3. DETERMINISTIC FIX NODE (Node 2.5 — Zero LLM Cost)        │
+  │    • LibCST automatically purges unused imports & variables │
+  │    • 100% deterministic — 0% risk of AI hallucinations      │
+  └──────────────────────────────┬──────────────────────────────┘
+                                 │ Cleaned Import Source
+                                 ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │ 4. CHUNKED LLM REFACTOR NODE (codeslim/llm/...)            │
+  │    • Extracts only complex functions (CC > 10)              │
+  │    • Dual Provider: Ollama local (qwen2.5-coder:3b) / OpenAI│
+  │    • Refactors nested logic into clean guard clauses       │
+  └──────────────────────────────┬──────────────────────────────┘
+                                 │ Proposed Refactored Code
+                                 ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │ 5. AST GUARDRAIL SAFETY GATE (codeslim/optimizer/...)       │
+  │    • ast.parse() syntax verification                        │
+  │    • Public class & function signature set preservation     │
+  │    • Safety Rejection: Reverts broken LLM code to CST fix   │
+  │    • Always-On Unified Diff Generator                      │
+  └──────────────────────────────┬──────────────────────────────┘
+                                 │ Final Report & Diff
+                                 ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │ 6. FORMATTERS & OBSERVATORY UI (codeslim/formatters/...)    │
+  │    • Rich Terminal Dashboard (Tokyo Night Theme)            │
+  │    • Standalone HTML Observatory with Surgery Modal         │
+  │    • FastAPI GitHub PR Bot Webhook Receiver                │
+  └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -58,18 +87,18 @@ CodeSlim executes a **5-stage linear pipeline** using specialized autonomous age
 
 ### 1. Installation
 
-Clone the repository and install in editable mode:
+Clone the repository and install dependencies using **`uv`** (or `pip`):
 
 ```bash
-git clone https://github.com/your-org/codeslim.git
-cd codeslim
-pip install -e .
+git clone https://github.com/ImdataScientistSachin/CodeSlim.git
+cd CodeSlim
+uv sync
 ```
 
-Or install dependencies directly:
+Or install via standard `pip`:
 
 ```bash
-pip install -r requirements.txt
+pip install -e .
 ```
 
 ### 2. Environment Setup
@@ -80,14 +109,15 @@ Copy `.env.example` to `.env`:
 cp .env.example .env
 ```
 
-Default `.env` configuration for local execution:
+Configure `.env` for local Ollama or cloud execution:
 
 ```env
 LLM_PROVIDER=ollama
 LLM_MODEL_ANALYSIS=qwen2.5-coder:3b
 LLM_MODEL_OPTIMIZATION=qwen2.5-coder:3b
 OLLAMA_BASE_URL=http://localhost:11434
-# OPENAI_API_KEY=sk-your-openai-api-key
+CODESLIM_GITHUB_TOKEN=your_github_pat_token_here
+CODESLIM_GITHUB_WEBHOOK_SECRET=your_webhook_secret_here
 ```
 
 ---
@@ -96,75 +126,65 @@ OLLAMA_BASE_URL=http://localhost:11434
 
 ### 🔍 1. Fast Code Bloat Analysis (`codeslim analyze`)
 
-Scan a file or directory with static analysis sensors without calling the LLM:
+Scan Python file(s) for complexity and bloat without calling LLMs:
 
 ```bash
-codeslim analyze ./myproject/ --format rich
+codeslim analyze ./codeslim/ --format rich
 ```
-
-#### Outputs:
-* **Rich Terminal**: Color-coded bloat score grade (**A** to **F**), metrics table, and itemized bloat list.
-* **JSON (CI/CD)**: Machine-readable JSON output via `--format json`.
-* **GitHub PR**: GitHub-Flavored Markdown comment table via `--format github_pr`.
-
----
 
 ### ⚡ 2. Full Optimization Pipeline (`codeslim optimize`)
 
-Run the full 5-stage pipeline on a target Python file:
+Run full deterministic LibCST dead-code removal and LLM refactoring:
 
-```bash
-codeslim optimize ./target_file.py --format rich
-```
-
-#### Apply Changes with Automatic Backup:
 ```bash
 codeslim optimize ./target_file.py --apply --backup
 ```
-*Applies optimized code to `./target_file.py` and creates a `./target_file.py.bak` backup file.*
 
----
+### 🔭 3. Project Observatory & Interactive HTML Export (`codeslim scan`)
 
-### 🔭 3. Project Observatory Scan (`codeslim scan`)
-
-Scan an entire directory of Python files to inspect codebase health, file treemaps, and cross-file phantom functions:
+Scan an entire directory and export an interactive Tokyo Night HTML Observatory with file surgery modals:
 
 ```bash
-codeslim scan ./codeslim/
+codeslim scan ./codeslim/ --export-html observatory_report.html
 ```
 
-#### Outputs:
-* **Overall Health Meter**: Grade badge and project-wide bloat percentage.
-* **File Treemap Grid**: Visual file sizes and bloat severity color coding.
-* **Top 5 Worst Offenders**: Ranked table of most complex files.
-* **Cross-File Intelligence**: Detects phantom functions and fake PyPI package spread across files.
-* **Codebase Fingerprint**: Composition breakdown bar of Clean, Dead, Complex, and Duplicated lines.
+### 🤖 4. Start GitHub PR Webhook Bot (`codeslim bot serve`)
 
----
+Start the FastAPI webhook receiver server for automated PR audits:
 
-## 🤖 The 5 Specialized Agents
+```bash
+codeslim bot serve --port 8000 --auto-commit
+```
 
-| Agent | Responsibilities | Key Files | Key Technologies |
-| :--- | :--- | :--- | :--- |
-| **1. Static Analysis Agent** | Sensor & perception layer | `codeslim/analyzers/` | Radon CC, Vulture, Lizard, AST Visitors, Token Duplication |
-| **2. Context Minimizer Agent** | Token & prompt optimization | `codeslim/context/` | LibCST syntax transformers, `tiktoken` token budget engine |
-| **3. LLM Reasoner Agent** | Generative decision engine | `codeslim/llm/` | Async Ollama REST client, OpenAI fallback, Pydantic V2 schemas |
-| **4. Hallucination Guardrail Agent** | Safety audit & diff generator | `codeslim/optimizer/` | AST `ast.parse()`, Signature Preservation, 3-Tier Classifier |
-| **5. Pipeline Orchestrator Agent** | State machine controller | `codeslim/pipeline/` & `cli.py` | State machine node router, Rich CLI, Multi-target formatters |
+### 🪝 5. Install Git Pre-Commit Guardrail Hook (`codeslim install-hooks`)
+
+Install local Git pre-commit hook into `.git/hooks/pre-commit` to clean dead code on `git commit`:
+
+```bash
+codeslim install-hooks
+```
 
 ---
 
 ## 🧪 Testing & Verification
 
-CodeSlim maintains a **100% passing test suite** using `pytest`:
+CodeSlim maintains a **100% passing test suite** (76/76 unit and integration tests):
 
 ```bash
-pytest -v
+uv run pytest -v
 ```
 
+```text
+======================== 76 passed, 1 warning in 1.99s ========================
 ```
-============================= 63 passed in 1.65s =============================
-```
+
+---
+
+## 📄 Documentation Links
+
+- 📖 **[CODESLIM_GUIDE.md](file:///g:/Project%20Directory/AGENTIC%20AI%20PROJECT%20DIRECTORY/CodeSlim/documents/CODESLIM_GUIDE.md)** — Master Developer Textbook, Architecture Breakdown & 25 Q&As.
+- 🤖 **[BOT_SETUP_GUIDE.md](file:///g:/Project%20Directory/AGENTIC%20AI%20PROJECT%20DIRECTORY/CodeSlim/documents/BOT_SETUP_GUIDE.md)** — Step-by-Step GitHub Webhook, PAT Token & ngrok Setup.
+- 📜 **[GEMINI.md](file:///g:/Project%20Directory/AGENTIC%20AI%20PROJECT%20DIRECTORY/CodeSlim/GEMINI.md)** — Version 2.5 Ultimate Workspace Protocol & Rule 11 Audit Checklist.
 
 ---
 
