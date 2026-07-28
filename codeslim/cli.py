@@ -123,6 +123,30 @@ def scan(target_path: Path, no_llm: bool, export_html: Path | None) -> None:
         console.print(f"\n[bold green]Interactive HTML Observatory exported to:[/bold green] [cyan]{export_html}[/cyan]")
 
 
+@main.command("install-hooks")
+@click.option(
+    "--path",
+    "-p",
+    "target_path",
+    type=click.Path(exists=True, path_type=Path),
+    default=".",
+    help="Target repository directory",
+)
+def install_hooks(target_path: Path) -> None:
+    """Install local Git pre-commit guardrail hook."""
+    from codeslim.hooks import install_git_pre_commit_hook
+
+    success = install_git_pre_commit_hook(target_path)
+    if success:
+        console.print(
+            f"[bold green]Successfully installed CodeSlim pre-commit hook into:[/bold green] [cyan]{target_path / '.git' / 'hooks' / 'pre-commit'}[/cyan]"
+        )
+    else:
+        console.print(
+            f"[bold red]Error:[/bold red] Target directory [cyan]{target_path}[/cyan] is not a Git repository (no `.git` directory found)."
+        )
+
+
 @main.group()
 def bot() -> None:
     """GitHub Auto-Fix PR Webhook Bot commands."""
