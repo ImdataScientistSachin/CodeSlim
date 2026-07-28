@@ -167,5 +167,30 @@ def bot_serve(host: str, port: int, auto_commit: bool) -> None:
     uvicorn.run(app, host=host, port=port)
 
 
+@main.command("ui")
+@click.option("--host", default="127.0.0.1", help="Host IP address to bind web server")
+@click.option("--port", default=8000, type=int, help="Port to listen for web studio")
+@click.option("--open-browser/--no-open-browser", default=True, help="Automatically open browser window")
+def ui(host: str, port: int, open_browser: bool) -> None:
+    """Launch CodeSlim Web Studio Ultimate Edition interactive web workspace."""
+    import webbrowser
+
+    import uvicorn
+
+    from codeslim.ui.server import create_ui_app
+
+    app = create_ui_app()
+    url = f"http://{host}:{port}"
+    console.print(f"[bold cyan]Launching CodeSlim Web Studio Ultimate on {url}...[/bold cyan]")
+
+    if open_browser:
+        try:
+            webbrowser.open(url)
+        except Exception:
+            pass
+
+    uvicorn.run(app, host=host, port=port)
+
+
 if __name__ == "__main__":
     main()

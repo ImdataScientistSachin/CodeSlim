@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeSlim Web Studio Ultimate v2.5</title>
+    <!-- Google Fonts & FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #1a1b26;
+            --bg-card: #24283b;
+            --bg-input: #1f2335;
+            --accent-cyan: #7dcfff;
+            --accent-blue: #7aa2f7;
+            --accent-purple: #bb9af7;
+            --accent-green: #9ece6a;
+            --accent-red: #f7768e;
+            --accent-yellow: #e0af68;
+            --text-main: #c0caf5;
+            --text-muted: #565f89;
+            --border: #414868;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header Navigation Bar */
+        header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--accent-cyan);
+        }
+
+        .brand i { font-size: 1.5rem; color: var(--accent-purple); }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            background: var(--bg-input);
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-blue);
+            color: #fff;
+        }
+
+        .ai-health-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(158, 206, 106, 0.15);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-green);
+        }
+
+        /* Action Control Toolbar */
+        .toolbar {
+            background: var(--bg-card);
+            padding: 10px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.1s ease, filter 0.2s ease;
+        }
+
+        .btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+        .btn-analyze { background: var(--accent-cyan); color: #1a1b26; }
+        .btn-optimize { background: var(--accent-purple); color: #fff; }
+        .btn-scan { background: var(--accent-blue); color: #fff; }
+        .btn-export { background: var(--accent-yellow); color: #1a1b26; }
+
+        /* Main Workspace Content Area */
+        main {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Tab 1: Single File Playground */
+        .playground-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .editor-pane, .result-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+        }
+
+        .pane-header {
+            padding: 10px 16px;
+            background: var(--bg-input);
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--accent-cyan);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        textarea.code-editor {
+            flex: 1;
+            background: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            padding: 16px;
+            border: none;
+            outline: none;
+            resize: none;
+            line-height: 1.5;
+        }
+
+        /* Metrics Summary Bar */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 16px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .metric-card {
+            background: var(--bg-input);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .metric-card .val {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+
+        .metric-card .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .diff-viewer {
+            flex: 1;
+            background: var(--bg-dark);
+            padding: 16px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            color: var(--text-main);
+        }
+
+        /* Tab 2: Entire Codebase Observatory */
+        .observatory-container {
+            display: none;
+            width: 100%;
+            height: 100%;
+            padding: 24px;
+            overflow-y: auto;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .observatory-container.active { display: flex; }
+
+        .health-hero {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-input));
+            border: 1px solid var(--border);
+            padding: 24px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .grade-badge {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            color: #1a1b26;
+            font-size: 2.5rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(158, 206, 106, 0.4);
+        }
+
+        .file-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .file-table th, .file-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .file-table th { background: var(--bg-input); color: var(--accent-cyan); font-size: 0.85rem; }
+
+        /* Footer Status Bar */
+        footer {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 6px 24px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation Bar -->
+    <header>
+        <div class="brand">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            CodeSlim Web Studio Ultimate v2.5
+        </div>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" id="tab-playground-btn" onclick="switchTab('playground')">
+                <i class="fa-solid fa-code"></i> ⚡ Single File Playground
+            </button>
+            <button class="tab-btn" id="tab-observatory-btn" onclick="switchTab('observatory')">
+                <i class="fa-solid fa-satellite-dish"></i> 📁 Entire Codebase Observatory
+            </button>
+        </div>
+
+        <div class="ai-health-pill" id="ai-health-pill">
+            <div class="pulse-dot"></div>
+            <span id="ai-health-text">🟢 Ollama Local (qwen2.5-coder:3b) | Ready</span>
+        </div>
+    </header>
+
+    <!-- Action Control Toolbar -->
+    <div class="toolbar">
+        <button class="btn btn-analyze" onclick="handleAnalyze()">
+            <i class="fa-solid fa-magnifying-glass"></i> 🔍 Analyze
+        </button>
+        <button class="btn btn-optimize" onclick="handleOptimize()">
+            <i class="fa-solid fa-bolt"></i> ⚡ Optimize (CST + LLM)
+        </button>
+        <button class="btn btn-scan" onclick="handleScan()">
+            <i class="fa-solid fa-radar"></i> 🚀 Scan Codebase
+        </button>
+        <button class="btn btn-export" onclick="handleExport()">
+            <i class="fa-solid fa-download"></i> 📥 Export Report
+        </button>
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="no-llm-toggle">
+            <label for="no-llm-toggle" style="font-size: 0.85rem; color: var(--text-muted);">Fast CST Fix Only (No LLM)</label>
+        </div>
+    </div>
+
+    <!-- Main Workspace Content Area -->
+    <main>
+        <!-- Tab 1: Single File Playground -->
+        <div class="playground-container" id="playground-tab">
+            <div class="editor-pane">
+                <div class="pane-header">
+                    <span><i class="fa-brands fa-python"></i> Python Code Editor</span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">In-Memory Preview Mode</span>
+                </div>
+                <textarea class="code-editor" id="code-input" placeholder="Paste your Python code snippet here..."></textarea>
+            </div>
+
+            <div class="result-pane">
+                <div class="pane-header">
+                    <span><i class="fa-solid fa-chart-pie"></i> Real-time Bloat Metrics & AST Diff</span>
+                    <span id="confidence-badge" style="background: var(--accent-green); color: #1a1b26; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">Auto-Safe</span>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="val" id="metric-bloat">0.0</div>
+                        <div class="label">Bloat Score</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="val" id="metric-grade">A</div>
+                        <div class="label">Code Grade</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="val" id="metric-cc">0</div>
+                        <div class="label">Radon CC</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="val" id="metric-tokens">0</div>
+                        <div class="label">Tokens Saved</div>
+                    </div>
+                </div>
+
+                <div class="diff-viewer" id="diff-output">
+                    <!-- Dynamic Side-by-Side Diff output -->
+                    <span style="color: var(--text-muted);">Click 'Analyze' or 'Optimize' to view results...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Entire Codebase Observatory -->
+        <div class="observatory-container" id="observatory-tab">
+            <div class="health-hero">
+                <div>
+                    <h2 style="color: var(--accent-cyan); font-size: 1.4rem;">Project Observatory Scan</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">Directory: <span id="obs-dir" style="color: var(--text-main);">./codeslim/</span></p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div>
+                        <div style="font-size: 1.8rem; font-weight: 700; color: var(--accent-cyan);" id="obs-score">0.0 / 100</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Codebase Health Score</div>
+                    </div>
+                    <div class="grade-badge" id="obs-grade">A</div>
+                </div>
+            </div>
+
+            <table class="file-table">
+                <thead>
+                    <tr>
+                        <th>File Path</th>
+                        <th>Bloat Score</th>
+                        <th>Radon CC</th>
+                        <th>Dead Items</th>
+                        <th>Lines</th>
+                    </tr>
+                </thead>
+                <tbody id="file-table-body">
+                    <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Click 'Scan Codebase' to populate repository health map...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Footer Status Bar -->
+    <footer>
+        <span>CodeSlim Agentic AI Engine v2.5 · AST Guardrail Gate Active</span>
+        <span id="footer-status">Ready</span>
+    </footer>
+
+    <script>
+        // Default Sample Code
+        document.getElementById('code-input').value = `import os
+import sys
+import math
+
+def calculate_tax(income):
+    if income > 100000:
+        if income > 200000:
+            return income * 0.3
+        else:
+            return income * 0.2
+    else:
+        return income * 0.1
+`;
+
+        function switchTab(tab) {
+            document.getElementById('tab-playground-btn').classList.remove('active');
+            document.getElementById('tab-observatory-btn').classList.remove('active');
+            document.getElementById('playground-tab').style.display = 'none';
+            document.getElementById('observatory-tab').classList.remove('active');
+
+            if (tab === 'playground') {
+                document.getElementById('tab-playground-btn').classList.add('active');
+                document.getElementById('playground-tab').style.display = 'flex';
+            } else {
+                document.getElementById('tab-observatory-btn').classList.add('active');
+                document.getElementById('observatory-tab').classList.add('active');
+            }
+        }
+
+        async function checkAIHealth() {
+            try {
+                const res = await fetch('/api/v1/health/llm');
+                const data = await res.json();
+                const text = data.ollama_online ? '🟢 Ollama Local (' + data.optimization_model + ') | Ready' : '🟡 Cloud Fallback | Ready';
+                document.getElementById('ai-health-text').innerText = text;
+            } catch (e) {
+                document.getElementById('ai-health-text').innerText = '🔴 AI Service Offline';
+            }
+        }
+
+        async function handleAnalyze() {
+            const code = document.getElementById('code-input').value;
+            document.getElementById('footer-status').innerText = 'Analyzing static bloat metrics...';
+            try {
+                const res = await fetch('/api/v1/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code, filename: 'input.py' })
+                });
+                const data = await res.json();
+                document.getElementById('metric-bloat').innerText = data.bloat_score;
+                document.getElementById('metric-grade').innerText = data.grade;
+                document.getElementById('metric-cc').innerText = data.cyclomatic_complexity;
+                document.getElementById('metric-tokens').innerText = data.original_tokens;
+                document.getElementById('diff-output').innerText = "Analysis Complete:\n- Dead Items Detected: " + data.dead_code_items.join(', ') + "\n- Max Nesting Depth: " + data.nesting_depth;
+                document.getElementById('footer-status').innerText = 'Analysis Complete!';
+            } catch (e) {
+                document.getElementById('footer-status').innerText = 'Analysis Error: ' + e.message;
+            }
+        }
+
+        async function handleOptimize() {
+            const code = document.getElementById('code-input').value;
+            const noLLM = document.getElementById('no-llm-toggle').checked;
+            document.getElementById('footer-status').innerText = 'Running CST + LLM Optimization...';
+            try {
+                const res = await fetch('/api/v1/optimize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code, filename: 'input.py', no_llm: noLLM })
+                });
+                const data = await res.json();
+                document.getElementById('metric-bloat').innerText = data.bloat_score;
+                document.getElementById('metric-grade').innerText = data.grade;
+                document.getElementById('metric-tokens').innerText = data.tokens_saved;
+                document.getElementById('diff-output').innerText = data.diff;
+                document.getElementById('confidence-badge').innerText = data.confidence_tier;
+                document.getElementById('footer-status').innerText = 'Optimization Complete! AST Validated.';
+            } catch (e) {
+                document.getElementById('footer-status').innerText = 'Optimization Error: ' + e.message;
+            }
+        }
+
+        async function handleScan() {
+            switchTab('observatory');
+            document.getElementById('footer-status').innerText = 'Scanning repository observatory...';
+            try {
+                const res = await fetch('/api/v1/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ directory: '.', no_llm: true })
+                });
+                const data = await res.json();
+                document.getElementById('obs-score').innerText = data.overall_score + ' / 100';
+                document.getElementById('obs-grade').innerText = data.overall_grade;
+
+                const tbody = document.getElementById('file-table-body');
+                tbody.innerHTML = '';
+                data.files.forEach(f => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${f.path}</td><td>${f.bloat_score}</td><td>${f.cc}</td><td>${f.dead_items}</td><td>${f.total_lines}</td>`;
+                    tbody.appendChild(tr);
+                });
+                document.getElementById('footer-status').innerText = 'Codebase Scan Complete!';
+            } catch (e) {
+                document.getElementById('footer-status').innerText = 'Scan Error: ' + e.message;
+            }
+        }
+
+        function handleExport() {
+            window.location.href = '/api/v1/export-html?directory=.';
+        }
+
+        // Check health on page load
+        checkAIHealth();
+    </script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+"""
+CodeSlim Web Studio package.
+"""
