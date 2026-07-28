@@ -45,6 +45,9 @@ codeslim = "codeslim.cli:main"
 where = ["."]
 include = ["codeslim*"]
 
+[tool.setuptools.package-data]
+codeslim = ["ui/static/*.html", "ui/static/*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = ["llm: tests that make real LLM calls (slow)"]

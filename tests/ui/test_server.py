@@ -10,6 +10,18 @@ app = create_ui_app()
 client = TestClient(app)
 
 
+def test_ui_root_endpoint():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "CodeSlim Web Studio" in response.text
+
+
+def test_ui_studio_endpoint():
+    response = client.get("/studio")
+    assert response.status_code == 200
+    assert "CodeSlim Web Studio" in response.text
+
+
 def test_ui_healthcheck():
     response = client.get("/api/v1/healthcheck")
     assert response.status_code == 200
@@ -32,7 +44,7 @@ def test_ui_analyze_endpoint():
     assert response.status_code == 200
     data = response.json()
     assert data["grade"] in ["A", "B", "C", "D", "F"]
-    assert "sys" in data["dead_code_items"] or len(data["dead_code_items"]) >= 0
+    assert len(data["dead_code_items"]) >= 0
 
 
 def test_ui_optimize_endpoint_no_llm():
@@ -46,7 +58,6 @@ def test_ui_optimize_endpoint_no_llm():
 
 
 def test_ui_scan_endpoint(tmp_path):
-    # Create test python file in temp path
     test_file = tmp_path / "sample.py"
     test_file.write_text("import sys\ndef hello(): pass\n", encoding="utf-8")
 
@@ -55,3 +66,12 @@ def test_ui_scan_endpoint(tmp_path):
     data = response.json()
     assert data["total_files"] == 1
     assert data["overall_grade"] in ["A", "B", "C", "D", "F"]
+
+
+def test_ui_export_html_endpoint(tmp_path):
+    test_file = tmp_path / "sample.py"
+    test_file.write_text("import sys\ndef hello(): pass\n", encoding="utf-8")
+
+    response = client.get(f"/api/v1/export-html?directory={tmp_path}")
+    assert response.status_code == 200
+    assert "<!DOCTYPE html>" in response.text

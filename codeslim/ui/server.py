@@ -4,8 +4,10 @@ FastAPI Server for CodeSlim Web Studio Ultimate Edition.
 Provides REST API endpoints for single-file analysis, optimization, codebase scanning,
 AI provider health checks, git hook installation, and interactive HTML report export.
 """
+
 from pathlib import Path
 from typing import Any
+
 import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
@@ -23,6 +25,7 @@ from codeslim.utils.logger import get_logger
 
 log = get_logger("codeslim.ui.server")
 settings = get_settings()
+
 
 # Pydantic Schemas
 class CodeAnalysisRequest(BaseModel):
@@ -234,12 +237,17 @@ def create_ui_app() -> FastAPI:
         html_content = generate_html_observatory_report(report)
         return HTMLResponse(content=html_content, status_code=200)
 
-    # 7. Serve Web Studio SPA Front-End
+    # 7. Serve Web Studio SPA Front-End at /, /index.html, and /studio
     @app.get("/", response_class=HTMLResponse)
+    @app.get("/index.html", response_class=HTMLResponse)
+    @app.get("/studio", response_class=HTMLResponse)
     def studio_home() -> HTMLResponse:
         index_file = static_dir / "index.html"
         if not index_file.exists():
-            return HTMLResponse("<h1>CodeSlim Web Studio Initializing...</h1>", status_code=200)
+            return HTMLResponse(
+                "<h1>CodeSlim Web Studio Initializing...</h1><p>Please refresh in a moment.</p>",
+                status_code=200,
+            )
         return HTMLResponse(content=index_file.read_text(encoding="utf-8"), status_code=200)
 
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
