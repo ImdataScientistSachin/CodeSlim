@@ -110,20 +110,21 @@
             padding: 10px 24px;
             border-bottom: 1px solid var(--border);
             display: flex;
-            gap: 12px;
+            gap: 10px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .btn {
-            padding: 8px 18px;
+            padding: 8px 16px;
             border: none;
             border-radius: 6px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             transition: transform 0.1s ease, filter 0.2s ease;
         }
 
@@ -132,6 +133,8 @@
         .btn-optimize { background: var(--accent-purple); color: #fff; }
         .btn-scan { background: var(--accent-blue); color: #fff; }
         .btn-export { background: var(--accent-yellow); color: #1a1b26; }
+        .btn-hook { background: var(--accent-green); color: #1a1b26; }
+        .btn-secondary { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border); }
 
         /* Main Workspace Content Area */
         main {
@@ -140,7 +143,6 @@
             overflow: hidden;
         }
 
-        /* Tab 1: Single File Playground */
         .playground-container {
             display: flex;
             width: 100%;
@@ -159,7 +161,7 @@
             background: var(--bg-input);
             border-bottom: 1px solid var(--border);
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--accent-cyan);
             display: flex;
             justify-content: space-between;
@@ -171,7 +173,7 @@
             background: var(--bg-dark);
             color: var(--text-main);
             font-family: 'Fira Code', monospace;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             padding: 16px;
             border: none;
             outline: none;
@@ -183,34 +185,59 @@
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            padding: 16px;
+            gap: 10px;
+            padding: 12px 16px;
             background: var(--bg-card);
             border-bottom: 1px solid var(--border);
         }
 
         .metric-card {
             background: var(--bg-input);
-            padding: 12px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 6px;
             border: 1px solid var(--border);
             text-align: center;
         }
 
         .metric-card .val {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: var(--accent-cyan);
         }
 
         .metric-card .label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-muted);
             text-transform: uppercase;
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
-        .diff-viewer {
+        /* Output View Tabs: Clean Code vs Diff */
+        .output-switcher {
+            display: flex;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--bg-input);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sub-tab {
+            padding: 4px 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .sub-tab.active {
+            background: var(--accent-purple);
+            color: #fff;
+        }
+
+        .output-box {
             flex: 1;
             background: var(--bg-dark);
             padding: 16px;
@@ -221,7 +248,26 @@
             color: var(--text-main);
         }
 
-        /* Tab 2: Entire Codebase Observatory */
+        .diff-add { color: var(--accent-green); background: rgba(158, 206, 106, 0.1); }
+        .diff-del { color: var(--accent-red); background: rgba(247, 118, 142, 0.1); }
+
+        /* Findings List Table */
+        .findings-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            font-size: 0.8rem;
+        }
+
+        .findings-table th, .findings-table td {
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .findings-table th { color: var(--accent-cyan); background: var(--bg-input); }
+
+        /* Observatory Container */
         .observatory-container {
             display: none;
             width: 100%;
@@ -237,25 +283,25 @@
         .health-hero {
             background: linear-gradient(135deg, var(--bg-card), var(--bg-input));
             border: 1px solid var(--border);
-            padding: 24px;
-            border-radius: 12px;
+            padding: 20px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
         .grade-badge {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             background: var(--accent-green);
             color: #1a1b26;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: 800;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 20px rgba(158, 206, 106, 0.4);
+            box-shadow: 0 0 15px rgba(158, 206, 106, 0.4);
         }
 
         .file-table {
@@ -268,14 +314,15 @@
         }
 
         .file-table th, .file-table td {
-            padding: 12px 16px;
+            padding: 10px 14px;
             text-align: left;
             border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
         }
 
-        .file-table th { background: var(--bg-input); color: var(--accent-cyan); font-size: 0.85rem; }
+        .file-table th { background: var(--bg-input); color: var(--accent-cyan); }
 
-        /* Footer Status Bar */
+        /* Footer */
         footer {
             background: var(--bg-card);
             border-top: 1px solid var(--border);
@@ -313,6 +360,11 @@
 
     <!-- Action Control Toolbar -->
     <div class="toolbar">
+        <button class="btn btn-secondary" onclick="triggerFileInput()">
+            <i class="fa-solid fa-folder-open"></i> 📂 Load File
+        </button>
+        <input type="file" id="file-picker" accept=".py" style="display: none;" onchange="loadSelectedFile(event)">
+
         <button class="btn btn-analyze" onclick="handleAnalyze()">
             <i class="fa-solid fa-magnifying-glass"></i> 🔍 Analyze
         </button>
@@ -322,12 +374,16 @@
         <button class="btn btn-scan" onclick="handleScan()">
             <i class="fa-solid fa-radar"></i> 🚀 Scan Codebase
         </button>
-        <button class="btn btn-export" onclick="handleExport()">
-            <i class="fa-solid fa-download"></i> 📥 Export Report
+        <button class="btn btn-export" onclick="handleExportHTML()">
+            <i class="fa-solid fa-download"></i> 📥 Download HTML Observatory
         </button>
+        <button class="btn btn-hook" onclick="handleInstallGitHook()">
+            <i class="fa-solid fa-anchor"></i> 🪝 Install Git Hook
+        </button>
+
         <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
             <input type="checkbox" id="no-llm-toggle">
-            <label for="no-llm-toggle" style="font-size: 0.85rem; color: var(--text-muted);">Fast CST Fix Only (No LLM)</label>
+            <label for="no-llm-toggle" style="font-size: 0.8rem; color: var(--text-muted);">Fast CST Fix Only (No LLM)</label>
         </div>
     </div>
 
@@ -337,18 +393,23 @@
         <div class="playground-container" id="playground-tab">
             <div class="editor-pane">
                 <div class="pane-header">
-                    <span><i class="fa-brands fa-python"></i> Python Code Editor</span>
-                    <span style="font-size: 0.75rem; color: var(--text-muted);">In-Memory Preview Mode</span>
+                    <span><i class="fa-brands fa-python"></i> Python Source Editor</span>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" style="padding: 2px 8px; font-size: 0.75rem;" onclick="copyEditorCode()">
+                            <i class="fa-solid fa-copy"></i> Copy
+                        </button>
+                    </div>
                 </div>
-                <textarea class="code-editor" id="code-input" placeholder="Paste your Python code snippet here..."></textarea>
+                <textarea class="code-editor" id="code-input" placeholder="Paste your Python code snippet or load a file from disk..."></textarea>
             </div>
 
             <div class="result-pane">
                 <div class="pane-header">
-                    <span><i class="fa-solid fa-chart-pie"></i> Real-time Bloat Metrics & AST Diff</span>
+                    <span><i class="fa-solid fa-chart-pie"></i> CodeSlim Analysis & Optimization Output</span>
                     <span id="confidence-badge" style="background: var(--accent-green); color: #1a1b26; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">Auto-Safe</span>
                 </div>
 
+                <!-- Metrics Grid -->
                 <div class="metrics-grid">
                     <div class="metric-card">
                         <div class="val" id="metric-bloat">0.0</div>
@@ -368,9 +429,27 @@
                     </div>
                 </div>
 
-                <div class="diff-viewer" id="diff-output">
-                    <!-- Dynamic Side-by-Side Diff output -->
-                    <span style="color: var(--text-muted);">Click 'Analyze' or 'Optimize' to view results...</span>
+                <!-- Output Sub-Switcher: Full Clean Code vs Unified Diff -->
+                <div class="output-switcher">
+                    <button class="sub-tab active" id="subtab-clean" onclick="switchOutputTab('clean')">📄 Full Optimized Code</button>
+                    <button class="sub-tab" id="subtab-diff" onclick="switchOutputTab('diff')">🔀 Unified Diff View</button>
+                    <button class="sub-tab" id="subtab-findings" onclick="switchOutputTab('findings')">📊 Structured Findings</button>
+                    
+                    <button class="btn btn-secondary" style="margin-left: auto; padding: 2px 8px; font-size: 0.75rem;" onclick="copyOutputResult()">
+                        <i class="fa-solid fa-paste"></i> Copy Output
+                    </button>
+                </div>
+
+                <div class="output-box" id="output-clean">
+                    <span style="color: var(--text-muted);">Full optimized Python source code will appear here after clicking 'Optimize'...</span>
+                </div>
+
+                <div class="output-box" id="output-diff" style="display: none;">
+                    <span style="color: var(--text-muted);">Line-by-line unified diff will appear here after clicking 'Optimize'...</span>
+                </div>
+
+                <div class="output-box" id="output-findings" style="display: none;">
+                    <span style="color: var(--text-muted);">Structured bloat findings table will appear here after clicking 'Analyze'...</span>
                 </div>
             </div>
         </div>
@@ -379,13 +458,13 @@
         <div class="observatory-container" id="observatory-tab">
             <div class="health-hero">
                 <div>
-                    <h2 style="color: var(--accent-cyan); font-size: 1.4rem;">Project Observatory Scan</h2>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">Directory: <span id="obs-dir" style="color: var(--text-main);">./codeslim/</span></p>
+                    <h2 style="color: var(--accent-cyan); font-size: 1.3rem;">Project Observatory Scan</h2>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Target Repository: <span id="obs-dir" style="color: var(--text-main);">./</span></p>
                 </div>
                 <div style="display: flex; align-items: center; gap: 20px;">
                     <div>
-                        <div style="font-size: 1.8rem; font-weight: 700; color: var(--accent-cyan);" id="obs-score">0.0 / 100</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">Codebase Health Score</div>
+                        <div style="font-size: 1.6rem; font-weight: 700; color: var(--accent-cyan);" id="obs-score">0.0 / 100</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Codebase Health Score</div>
                     </div>
                     <div class="grade-badge" id="obs-grade">A</div>
                 </div>
@@ -398,7 +477,7 @@
                         <th>Bloat Score</th>
                         <th>Radon CC</th>
                         <th>Dead Items</th>
-                        <th>Lines</th>
+                        <th>Total Lines</th>
                     </tr>
                 </thead>
                 <tbody id="file-table-body">
@@ -415,10 +494,18 @@
     </footer>
 
     <script>
-        // Default Sample Code
+        let currentOptimizedCode = "";
+
+        // Default Sample Bloated Code
         document.getElementById('code-input').value = `import os
 import sys
+import json
+from datetime import datetime
+from typing import Optional, List, Dict, Tuple, Any, Union
+
+# ── UNUSED DEAD IMPORTS ──
 import math
+import random
 
 def calculate_tax(income):
     if income > 100000:
@@ -445,6 +532,55 @@ def calculate_tax(income):
             }
         }
 
+        function switchOutputTab(subtab) {
+            document.getElementById('subtab-clean').classList.remove('active');
+            document.getElementById('subtab-diff').classList.remove('active');
+            document.getElementById('subtab-findings').classList.remove('active');
+
+            document.getElementById('output-clean').style.display = 'none';
+            document.getElementById('output-diff').style.display = 'none';
+            document.getElementById('output-findings').style.display = 'none';
+
+            if (subtab === 'clean') {
+                document.getElementById('subtab-clean').classList.add('active');
+                document.getElementById('output-clean').style.display = 'block';
+            } else if (subtab === 'diff') {
+                document.getElementById('subtab-diff').classList.add('active');
+                document.getElementById('output-diff').style.display = 'block';
+            } else {
+                document.getElementById('subtab-findings').classList.add('active');
+                document.getElementById('output-findings').style.display = 'block';
+            }
+        }
+
+        function triggerFileInput() {
+            document.getElementById('file-picker').click();
+        }
+
+        function loadSelectedFile(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('code-input').value = e.target.result;
+                    document.getElementById('footer-status').innerText = `Loaded file: ${file.name}`;
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function copyEditorCode() {
+            const code = document.getElementById('code-input').value;
+            navigator.clipboard.writeText(code);
+            document.getElementById('footer-status').innerText = 'Source code copied to clipboard!';
+        }
+
+        function copyOutputResult() {
+            const code = currentOptimizedCode || document.getElementById('output-clean').innerText;
+            navigator.clipboard.writeText(code);
+            document.getElementById('footer-status').innerText = 'Optimized result copied to clipboard!';
+        }
+
         async function checkAIHealth() {
             try {
                 const res = await fetch('/api/v1/health/llm');
@@ -458,7 +594,7 @@ def calculate_tax(income):
 
         async function handleAnalyze() {
             const code = document.getElementById('code-input').value;
-            document.getElementById('footer-status').innerText = 'Analyzing static bloat metrics...';
+            document.getElementById('footer-status').innerText = 'Running static bloat sensors...';
             try {
                 const res = await fetch('/api/v1/analyze', {
                     method: 'POST',
@@ -470,8 +606,21 @@ def calculate_tax(income):
                 document.getElementById('metric-grade').innerText = data.grade;
                 document.getElementById('metric-cc').innerText = data.cyclomatic_complexity;
                 document.getElementById('metric-tokens').innerText = data.original_tokens;
-                document.getElementById('diff-output').innerText = "Analysis Complete:\n- Dead Items Detected: " + data.dead_code_items.join(', ') + "\n- Max Nesting Depth: " + data.nesting_depth;
-                document.getElementById('footer-status').innerText = 'Analysis Complete!';
+
+                // Render Structured Findings Table
+                let html = '<table class="findings-table"><thead><tr><th>Finding</th><th>Line</th><th>Type</th></tr></thead><tbody>';
+                if (data.dead_code_items.length === 0) {
+                    html += '<tr><td colspan="3" style="color: var(--accent-green);">✨ No dead code or unused imports detected! Clean contract.</td></tr>';
+                } else {
+                    data.dead_code_items.forEach(item => {
+                        html += `<tr><td style="color: var(--accent-red);">${item}</td><td>Dead Code</td><td><span style="background: rgba(247,118,142,0.2); color: var(--accent-red); padding: 2px 6px; border-radius: 4px;">Tier-1</span></td></tr>`;
+                    });
+                }
+                html += '</tbody></table>';
+
+                document.getElementById('output-findings').innerHTML = html;
+                switchOutputTab('findings');
+                document.getElementById('footer-status').innerText = 'Analysis Complete! Findings rendered.';
             } catch (e) {
                 document.getElementById('footer-status').innerText = 'Analysis Error: ' + e.message;
             }
@@ -480,7 +629,7 @@ def calculate_tax(income):
         async function handleOptimize() {
             const code = document.getElementById('code-input').value;
             const noLLM = document.getElementById('no-llm-toggle').checked;
-            document.getElementById('footer-status').innerText = 'Running CST + LLM Optimization...';
+            document.getElementById('footer-status').innerText = 'Executing CST dead-code removal & LLM refactoring...';
             try {
                 const res = await fetch('/api/v1/optimize', {
                     method: 'POST',
@@ -488,12 +637,21 @@ def calculate_tax(income):
                     body: JSON.stringify({ code: code, filename: 'input.py', no_llm: noLLM })
                 });
                 const data = await res.json();
+                currentOptimizedCode = data.optimized_code;
+
                 document.getElementById('metric-bloat').innerText = data.bloat_score;
                 document.getElementById('metric-grade').innerText = data.grade;
                 document.getElementById('metric-tokens').innerText = data.tokens_saved;
-                document.getElementById('diff-output').innerText = data.diff;
                 document.getElementById('confidence-badge').innerText = data.confidence_tier;
-                document.getElementById('footer-status').innerText = 'Optimization Complete! AST Validated.';
+
+                // Set Full Clean Code view
+                document.getElementById('output-clean').innerText = data.optimized_code;
+
+                // Set Diff View
+                document.getElementById('output-diff').innerText = data.diff;
+
+                switchOutputTab('clean');
+                document.getElementById('footer-status').innerText = 'Optimization Complete! AST syntax verified.';
             } catch (e) {
                 document.getElementById('footer-status').innerText = 'Optimization Error: ' + e.message;
             }
@@ -525,8 +683,25 @@ def calculate_tax(income):
             }
         }
 
-        function handleExport() {
+        function handleExportHTML() {
             window.location.href = '/api/v1/export-html?directory=.';
+        }
+
+        async function handleInstallGitHook() {
+            document.getElementById('footer-status').innerText = 'Installing Git pre-commit hook...';
+            try {
+                const res = await fetch('/api/v1/install-hooks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ directory: '.' })
+                });
+                const data = await res.json();
+                alert('✅ ' + data.message);
+                document.getElementById('footer-status').innerText = 'Git pre-commit hook installed!';
+            } catch (e) {
+                alert('❌ Error installing hook: Target directory is not a Git repo.');
+                document.getElementById('footer-status').innerText = 'Git hook installation failed.';
+            }
         }
 
         // Check health on page load
