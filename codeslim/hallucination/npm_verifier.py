@@ -1,0 +1,1 @@
+"""npm package registry verifier."""

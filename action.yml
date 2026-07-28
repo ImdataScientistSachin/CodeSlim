@@ -1,0 +1,22 @@
+name: 'CodeSlim'
+description: 'AI Code Quality Audit for AI-generated code'
+inputs:
+  path:
+    description: 'Path to analyze'
+    required: true
+    default: '.'
+  groq-api-key:
+    description: 'Groq API key for LLM analysis'
+    required: false
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - run: pip install codeslim
+      shell: bash
+    - run: codeslim analyze ${{ inputs.path }} --format github-pr --output codeslim_report.json
+      shell: bash
+      env:
+        GROQ_API_KEY: ${{ inputs.groq-api-key }}

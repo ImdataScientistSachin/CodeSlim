@@ -1,0 +1,10 @@
+repos:
+  - repo: local
+    hooks:
+      - id: codeslim
+        name: CodeSlim — AI Code Quality Check
+        entry: codeslim analyze
+        language: system
+        types: [python]
+        args: ["--safe-only", "--format", "rich"]
+        pass_filenames: true

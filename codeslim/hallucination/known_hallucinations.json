@@ -1,0 +1,4 @@
+{
+  "pd_utils": "Fake pandas utility package",
+  "sklearn_extra": "Non-existent scikit-learn package"
+}
