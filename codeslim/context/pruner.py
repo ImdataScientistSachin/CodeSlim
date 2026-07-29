@@ -143,3 +143,5 @@ class RemoveDeadFunctionsTransformer(cst.CSTTransformer):
             log.debug("pruning_dead_function", function=func_name)
             return cst.RemoveFromParent()
         return updated_node
+
+
