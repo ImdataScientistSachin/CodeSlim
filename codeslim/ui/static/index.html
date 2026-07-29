@@ -381,9 +381,9 @@
             <i class="fa-solid fa-anchor"></i> 🪝 Install Git Hook
         </button>
 
-        <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;" title="Fast CST Fix Mode deterministically removes unused imports and dead functions without AI risk. Uncheck to enable generative LLM refactoring (nesting flattening & class consolidation).">
             <input type="checkbox" id="no-llm-toggle">
-            <label for="no-llm-toggle" style="font-size: 0.8rem; color: var(--text-muted);">Fast CST Fix Only (No LLM)</label>
+            <label for="no-llm-toggle" style="font-size: 0.8rem; color: var(--accent-cyan); cursor: pointer;"><i class="fa-solid fa-circle-info"></i> Fast CST Fix Only (No LLM)</label>
         </div>
     </div>
 
@@ -626,6 +626,24 @@ def calculate_tax(income):
             }
         }
 
+        function renderDiff(diffText) {
+            if (!diffText) return '<span style="color: var(--text-muted);">No changes detected.</span>';
+            const escaped = diffText
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+            return escaped.split('\n').map(line => {
+                if (line.startsWith('+') && !line.startsWith('+++')) {
+                    return `<span class="diff-add">${line}</span>`;
+                } else if (line.startsWith('-') && !line.startsWith('---')) {
+                    return `<span class="diff-del">${line}</span>`;
+                } else if (line.startsWith('@@')) {
+                    return `<span style="color: var(--accent-cyan);">${line}</span>`;
+                }
+                return line;
+            }).join('\n');
+        }
+
         async function handleOptimize() {
             const code = document.getElementById('code-input').value;
             const noLLM = document.getElementById('no-llm-toggle').checked;
@@ -636,6 +654,10 @@ def calculate_tax(income):
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ code: code, filename: 'input.py', no_llm: noLLM })
                 });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({ detail: res.statusText }));
+                    throw new Error(err.detail || res.statusText);
+                }
                 const data = await res.json();
                 currentOptimizedCode = data.optimized_code;
 
@@ -644,11 +666,11 @@ def calculate_tax(income):
                 document.getElementById('metric-tokens').innerText = data.tokens_saved;
                 document.getElementById('confidence-badge').innerText = data.confidence_tier;
 
-                // Set Full Clean Code view
-                document.getElementById('output-clean').innerText = data.optimized_code;
+                // Set Full Clean Code view (safe — plain text)
+                document.getElementById('output-clean').textContent = data.optimized_code || '';
 
-                // Set Diff View
-                document.getElementById('output-diff').innerText = data.diff;
+                // Set Diff View with syntax coloring
+                document.getElementById('output-diff').innerHTML = renderDiff(data.diff);
 
                 switchOutputTab('clean');
                 document.getElementById('footer-status').innerText = 'Optimization Complete! AST syntax verified.';

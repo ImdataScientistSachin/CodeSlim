@@ -98,7 +98,7 @@ class ProjectOrchestrator:
         )
 
         project_report = ProjectReport(
-            project_path=str(directory_path),
+            project_path=directory_path,
             total_files=len(file_reports),
             total_lines=total_lines,
             overall_bloat_score=round(avg_score, 1),

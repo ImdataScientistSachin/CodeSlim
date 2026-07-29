@@ -10,6 +10,7 @@ Node 4: Guardrail Node (AST Validation & Diff Generation)
 Node 5: Report Assembly Node (Final Pydantic Report Generation)
 """
 
+import ast
 from pathlib import Path
 from typing import Any
 
@@ -19,7 +20,7 @@ from codeslim.analyzers.complexity import ComplexityAnalyzer
 from codeslim.analyzers.dead_code import DeadCodeAnalyzer
 from codeslim.analyzers.duplication import DuplicationAnalyzer
 from codeslim.context.engine import ContextEngine
-from codeslim.context.pruner import remove_unused_imports
+from codeslim.context.pruner import remove_dead_functions, remove_unused_imports
 from codeslim.llm.client import LLMClient
 from codeslim.llm.models import LLMRefactorResponse, RefactorAction
 from codeslim.models.metrics import FileMetrics
@@ -59,22 +60,24 @@ def analyze_node(state: dict[str, Any]) -> dict[str, Any]:
 
     fn_metrics = comp_info.get("functions", [])
     dead_code_items = dead_info.get("dead_code", [])
-    cognitive_metrics = cog_info.get("cognitive_functions", [])
+    cognitive_metrics = cog_info.get("all_functions", [])
 
     fn_map = {fn.name: fn for fn in fn_metrics}
     for cog_fn in cognitive_metrics:
-        if cog_fn.name in fn_map:
-            fn_map[cog_fn.name].cognitive_complexity = cog_fn.cognitive_complexity
+        fn_name = cog_fn.get("name")
+        if fn_name and fn_name in fn_map:
+            fn_map[fn_name].cognitive_complexity = cog_fn.get("cognitive_complexity", 0)
 
     total_lines = len(raw_code.splitlines())
     duplication_ratio = dup_info.get("duplication_ratio", 0.0)
+    all_imports = ast_info.get("all_imports", [])
 
     file_metrics = FileMetrics(
         file_path=str(file_path),
         total_lines=total_lines,
         functions=list(fn_map.values()),
         dead_code=dead_code_items,
-        total_imports=ast_info.get("total_imports", 0),
+        total_imports=len(all_imports),
         third_party_imports=ast_info.get("third_party_imports", []),
         stdlib_imports=ast_info.get("stdlib_imports", []),
         duplication_ratio=duplication_ratio,
@@ -105,6 +108,8 @@ def minimize_node(state: dict[str, Any]) -> dict[str, Any]:
 
     state["pruned_code"] = result["pruned_code"]
     state["bloat_score"] = result["bloat_score"]
+    state["original_tokens"] = result["original_tokens"]
+    state["tokens_saved"] = result["tokens_saved"]
     state["system_prompt"] = result["system_prompt"]
     state["user_prompt"] = result["user_prompt"]
     state["stages_completed"].append("minimize")
@@ -120,24 +125,37 @@ def deterministic_fix_node(state: dict[str, Any]) -> dict[str, Any]:
         return state
 
     file_metrics: FileMetrics = state["file_metrics"]
-    raw_code: str = str(state.get("optimized_code") or state.get("raw_code", ""))
+    raw_code: str = str(
+        state.get("optimized_code") or state.get("pruned_code") or state.get("raw_code", "")
+    )
 
-    unused_names = {
+    unused_imports_and_vars = {
         item.name
         for item in file_metrics.dead_code
-        if item.code_type in ("import", "variable") and item.confidence >= 80
+        if item.code_type in ("import", "variable") and item.confidence >= 60
     }
 
-    if not unused_names:
+    unused_functions = {
+        item.name
+        for item in file_metrics.dead_code
+        if item.code_type == "function" and item.confidence >= 60
+    }
+
+    if not unused_imports_and_vars and not unused_functions:
         state["deterministic_fixes_applied"] = 0
         return state
 
-    fixed_code = remove_unused_imports(raw_code, unused_names)
+    fixed_code = raw_code
+    if unused_imports_and_vars:
+        fixed_code = remove_unused_imports(fixed_code, unused_imports_and_vars)
+    if unused_functions:
+        fixed_code = remove_dead_functions(fixed_code, unused_functions)
+
     lines_removed = max(0, len(raw_code.splitlines()) - len(fixed_code.splitlines()))
 
     log.info(
         "deterministic_fixes_applied",
-        removed_symbols=sorted(unused_names),
+        removed_symbols=sorted(unused_imports_and_vars | unused_functions),
         lines_removed=lines_removed,
     )
 
@@ -147,13 +165,43 @@ def deterministic_fix_node(state: dict[str, Any]) -> dict[str, Any]:
     return state
 
 
+def _detect_over_abstracted_classes(code: str) -> list[dict[str, Any]]:
+    """
+    Detect over-abstracted class chains (sequential small classes with <= 3 methods).
+
+    Returns list of dicts containing class details.
+    """
+    try:
+        tree = ast.parse(code)
+    except SyntaxError:
+        return []
+
+    small_classes = []
+    for node in ast.iter_child_nodes(tree):
+        if isinstance(node, ast.ClassDef):
+            methods = [n for n in node.body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))]
+            if len(methods) <= 3:
+                end_line = getattr(node, "end_lineno", node.lineno)
+                small_classes.append(
+                    {
+                        "name": node.name,
+                        "line_start": node.lineno,
+                        "line_end": end_line,
+                        "method_count": len(methods),
+                    }
+                )
+
+    if len(small_classes) >= 3:
+        return small_classes
+    return []
+
+
 async def llm_refactor_node(state: dict[str, Any]) -> dict[str, Any]:
     """
-    Node 3: Function-Level Chunked LLM Reasoner.
+    Node 3: Function-Level & Class Cluster Chunked LLM Reasoner.
 
-    Targeted refactoring: Extracts functions with CC > 10 and refactors them
-    individually via LLMClient.refactor_function_chunk(). This guarantees high
-    compliance for 3B models and prevents signature deletion.
+    Targeted refactoring: Extracts functions with CC > 10 or Nesting > 4,
+    plus over-abstracted class clusters, and refactors them via LLMClient.
     """
     if state.get("no_llm", False):
         log.info("skipping_llm_node_no_llm_flag")
@@ -167,11 +215,16 @@ async def llm_refactor_node(state: dict[str, Any]) -> dict[str, Any]:
         return state
 
     file_metrics: FileMetrics = state["file_metrics"]
-    current_code: str = str(state.get("optimized_code") or state.get("raw_code", ""))
-    complex_functions = [fn for fn in file_metrics.functions if fn.cyclomatic_complexity > 10]
+    current_code: str = str(
+        state.get("optimized_code") or state.get("pruned_code") or state.get("raw_code", "")
+    )
+    complex_functions = [
+        fn for fn in file_metrics.functions if fn.cyclomatic_complexity > 10 or fn.nesting_depth > 4
+    ]
+    class_cluster = _detect_over_abstracted_classes(current_code)
 
-    if not complex_functions:
-        log.info("no_complex_functions_to_refactor")
+    if not complex_functions and not class_cluster:
+        log.info("no_complex_functions_or_class_clusters_to_refactor")
         state["llm_response"] = None
         state["stages_completed"].append("llm_refactor_no_complex_functions")
         return state
@@ -202,12 +255,26 @@ async def llm_refactor_node(state: dict[str, Any]) -> dict[str, Any]:
                     target_symbol=fn.name,
                     line_start=fn.line_start,
                     line_end=fn.line_end,
-                    explanation=f"Refactored complex control flow (CC={fn.cyclomatic_complexity}) using guard clauses",
+                    explanation=f"Refactored complex control flow (CC={fn.cyclomatic_complexity}, Nesting={fn.nesting_depth}) using guard clauses",
                 )
             )
 
+    if class_cluster:
+        cluster_names = [c["name"] for c in class_cluster]
+        line_start = class_cluster[0]["line_start"]
+        line_end = class_cluster[-1]["line_end"]
+        actions.append(
+            RefactorAction(
+                action_type="consolidate_classes",
+                target_symbol=", ".join(cluster_names),
+                line_start=line_start,
+                line_end=line_end,
+                explanation=f"Identified over-abstracted class cluster ({len(cluster_names)} single-responsibility classes: {', '.join(cluster_names)})",
+            )
+        )
+
     response = LLMRefactorResponse(
-        summary=f"Refactored {len(actions)} complex functions using function-level chunking",
+        summary=f"Processed {len(actions)} refactoring targets using chunking engine",
         actions=actions,
         optimized_code=current_code,
         confidence_score=0.90,

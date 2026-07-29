@@ -1,12 +1,3 @@
-"""
-LibCST Code Pruner Module for CodeSlim.
-
-Applies lossless Concrete Syntax Tree (CST) transformations to Python source code:
-- Removes dead code statements identified by Vulture static analysis.
-- Strips unused import statements deterministically.
-- Strips module-level and function-level docstrings safely.
-- Inserts `pass` statements if stripping empties a block body.
-"""
 
 from collections.abc import Sequence
 
@@ -19,10 +10,6 @@ log = get_logger("codeslim.context.pruner")
 
 
 class RemoveUnusedImportsTransformer(cst.CSTTransformer):
-    """
-    LibCST transformer that removes import statements flagged as unused
-    by Vulture static analysis.
-    """
 
     def __init__(self, unused_names: set[str]) -> None:
         super().__init__()
@@ -51,6 +38,9 @@ class RemoveUnusedImportsTransformer(cst.CSTTransformer):
         if not kept:
             return cst.RemoveFromParent()
         if len(kept) < len(names):
+            last_alias = kept[-1]
+            if last_alias.comma != cst.MaybeSentinel.DEFAULT:
+                kept[-1] = last_alias.with_changes(comma=cst.MaybeSentinel.DEFAULT)
             return updated_node.with_changes(names=kept)
         return updated_node
 
@@ -72,16 +62,15 @@ class RemoveUnusedImportsTransformer(cst.CSTTransformer):
         if not kept:
             return cst.RemoveFromParent()
         if len(kept) < len(names):
+            if not getattr(updated_node, "rpar", None) and not getattr(updated_node, "lpar", None):
+                last_alias = kept[-1]
+                if last_alias.comma != cst.MaybeSentinel.DEFAULT:
+                    kept[-1] = last_alias.with_changes(comma=cst.MaybeSentinel.DEFAULT)
             return updated_node.with_changes(names=kept)
         return updated_node
 
 
 class DocstringAndDeadCodeTransformer(cst.CSTTransformer):
-    """
-    CST Transformer to strip dead code statements and docstrings.
-    """
-
-    METADATA_DEPENDENCIES = (PositionProvider,)
 
     def __init__(self, dead_code_lines: set[int], strip_docstrings: bool = True) -> None:
         super().__init__()
@@ -93,7 +82,10 @@ class DocstringAndDeadCodeTransformer(cst.CSTTransformer):
         original_node: cst.SimpleStatementLine,
         updated_node: cst.SimpleStatementLine,
     ) -> cst.SimpleStatementLine | cst.RemovalSentinel:
-        pos: CodeRange = self.get_metadata(PositionProvider, original_node)
+        pos = self.get_metadata(PositionProvider, original_node)
+        if not isinstance(pos, CodeRange):
+            return updated_node
+
         start_line = pos.start.line
         end_line = pos.end.line
 
@@ -122,58 +114,32 @@ class DocstringAndDeadCodeTransformer(cst.CSTTransformer):
         return False
 
 
-def remove_unused_imports(code: str, unused_names: set[str]) -> str:
-    """
-    Remove unused import statements from Python source code using LibCST.
+class RemoveDeadFunctionsTransformer(cst.CSTTransformer):
 
-    Args:
-        code: Target Python source code string.
-        unused_names: Set of symbol names flagged as unused.
+    def __init__(self, dead_function_names: set[str]) -> None:
+        super().__init__()
+        self.dead_function_names = dead_function_names
+        self._class_depth = 0
 
-    Returns:
-        Cleaned source code string.
-    """
-    if not code.strip() or not unused_names:
-        return code
-    try:
-        module = cst.parse_module(code)
-        transformer = RemoveUnusedImportsTransformer(unused_names=unused_names)
-        return module.visit(transformer).code
-    except Exception as exc:
-        log.warning("import_removal_failed", error=str(exc))
-        return code
+    def visit_ClassDef(self, node: cst.ClassDef) -> bool:
+        self._class_depth += 1
+        return True
 
+    def leave_ClassDef(
+        self, original_node: cst.ClassDef, updated_node: cst.ClassDef
+    ) -> cst.ClassDef:
+        self._class_depth -= 1
+        return updated_node
 
-def prune_source_code(
-    raw_code: str,
-    dead_code_lines: set[int] | None = None,
-    strip_docstrings: bool = True,
-) -> str:
-    """
-    Prune docstrings and dead code lines from Python source code string.
-
-    Args:
-        raw_code: Input Python source code string.
-        dead_code_lines: Set of 1-based line numbers containing dead code.
-        strip_docstrings: Whether to remove docstring statements.
-
-    Returns:
-        Pruned source code string.
-    """
-    if not raw_code.strip():
-        return raw_code
-
-    dead_lines = dead_code_lines or set()
-
-    try:
-        module = cst.parse_module(raw_code)
-        wrapper = MetadataWrapper(module)
-        transformer = DocstringAndDeadCodeTransformer(
-            dead_code_lines=dead_lines,
-            strip_docstrings=strip_docstrings,
-        )
-        modified_module = wrapper.visit(transformer)
-        return modified_module.code
-    except Exception as exc:
-        log.warning("libcst_pruning_failed_returning_raw", error=str(exc))
-        return raw_code
+    def leave_FunctionDef(
+        self,
+        original_node: cst.FunctionDef,
+        updated_node: cst.FunctionDef,
+    ) -> cst.FunctionDef | cst.RemovalSentinel:
+        if self._class_depth > 0:
+            return updated_node
+        func_name = updated_node.name.value
+        if func_name in self.dead_function_names and not func_name.startswith("__"):
+            log.debug("pruning_dead_function", function=func_name)
+            return cst.RemoveFromParent()
+        return updated_node

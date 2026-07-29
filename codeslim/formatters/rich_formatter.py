@@ -54,7 +54,9 @@ def format_rich_report(report: CodeSlimReport) -> str:
         lines.append("\n[bold yellow]Identified Bloat Areas:[/bold yellow]")
         for entry in report.bloat_map:
             range_str = f"{entry.line_start}-{entry.line_end}"
-            lines.append(f"  * [{entry.severity.upper()}] Lines {range_str}: {entry.explanation} ({entry.suggestion})")
+            sev = entry.severity.upper()
+            color = "red" if entry.severity in ("high", "critical") else ("yellow" if entry.severity == "medium" else "cyan")
+            lines.append(f"  * [{color}][{sev}][/{color}] Lines {range_str}: {entry.explanation} ({entry.suggestion})")
 
     if report.diff:
         lines.append("\n[bold green]Unified Diff Preview:[/bold green]\n")

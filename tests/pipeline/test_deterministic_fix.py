@@ -54,3 +54,32 @@ def test_deterministic_fix_node_no_dead_code(tmp_path: Path):
 
     assert new_state["deterministic_fixes_applied"] == 0
     assert "deterministic_fix" not in new_state["stages_completed"]
+
+
+def test_deterministic_fix_node_removes_dead_functions(tmp_path: Path):
+    test_file = tmp_path / "sample.py"
+    raw_code = "def active():\n    return 1\n\ndef dead_shim():\n    return 0\n"
+    test_file.write_text(raw_code)
+
+    file_metrics = FileMetrics(
+        file_path=str(test_file),
+        total_lines=5,
+        dead_code=[
+            DeadCodeItem(name="dead_shim", line=4, code_type="function", confidence=100)
+        ],
+    )
+
+    state = {
+        "file_path": test_file,
+        "raw_code": raw_code,
+        "file_metrics": file_metrics,
+        "stages_completed": [],
+    }
+
+    new_state = deterministic_fix_node(state)
+
+    assert "deterministic_fix" in new_state["stages_completed"]
+    assert "dead_shim" not in new_state["optimized_code"]
+    assert "def active():" in new_state["optimized_code"]
+    assert new_state["deterministic_fixes_applied"] > 0
+

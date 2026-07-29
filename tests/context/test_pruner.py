@@ -2,7 +2,7 @@
 Unit tests for LibCST Code Pruner.
 """
 
-from codeslim.context.pruner import prune_source_code
+from codeslim.context.pruner import prune_source_code, remove_dead_functions
 
 
 def test_prune_docstrings():
@@ -44,3 +44,17 @@ def test_prune_syntax_error_returns_raw():
     source = "def broken_syntax(:"
     pruned = prune_source_code(source)
     assert pruned == source
+
+
+def test_remove_dead_functions():
+    source = """def used_fn():
+    return 42
+
+def legacy_dead_shim():
+    print("dead")
+    return None
+"""
+    cleaned = remove_dead_functions(source, {"legacy_dead_shim"})
+    assert "used_fn" in cleaned
+    assert "legacy_dead_shim" not in cleaned
+

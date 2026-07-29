@@ -25,6 +25,9 @@ dependencies = [
     "uvicorn>=0.28",
     "openai>=1.0",
     "tiktoken>=0.5",
+    "tree-sitter>=0.26.0,<0.27.0",
+    "tree-sitter-python==0.25.0",
+    "tree-sitter-language-pack>=1.12.0,<2.0.0",
 ]
 
 [project.optional-dependencies]
@@ -46,7 +49,7 @@ where = ["."]
 include = ["codeslim*"]
 
 [tool.setuptools.package-data]
-codeslim = ["ui/static/*.html", "ui/static/*"]
+codeslim = ["ui/static/*.html", "ui/static/*", "formatters/templates/*.html", "formatters/templates/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

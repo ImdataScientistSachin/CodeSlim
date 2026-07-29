@@ -29,5 +29,13 @@ ENV/
 *.swo
 .DS_Store
 codeslim_report.json
+observatory*.html
+project_observatory.html
+.codeslim_tmp/
 data/cache/*
 !data/cache/.gitkeep
+
+# Internal Guides & Blueprints
+documents/
+*GUIDE.md
+CODESLIM_BLUEPRINT.md

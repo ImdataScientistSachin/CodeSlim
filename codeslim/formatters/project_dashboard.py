@@ -147,11 +147,16 @@ def render_codebase_fingerprint(report: ProjectReport) -> Panel:
     fp = report.fingerprint
     text = Text()
 
+    clean_bar = "#" * max(1, int((fp.clean_pct / 100.0) * 24)) if fp.clean_lines > 0 else ""
+    dead_bar = "#" * max(1, int((fp.dead_pct / 100.0) * 24)) if fp.dead_lines > 0 else ""
+    complex_bar = "#" * max(1, int((fp.complex_pct / 100.0) * 24)) if fp.complex_lines > 0 else ""
+    dup_bar = "#" * max(1, int((fp.dup_pct / 100.0) * 24)) if fp.duplicate_lines > 0 else ""
+
     text.append("Codebase Line Composition:\n\n", style="dim white")
-    text.append(f"  Clean Code    ##################  {fp.clean_lines} lines ({fp.clean_pct}%)\n", style="green")
-    text.append(f"  Dead Code     ######              {fp.dead_lines} lines\n", style="yellow")
-    text.append(f"  Complex Code  ###                 {fp.complex_lines} lines\n", style="red")
-    text.append(f"  Duplication   ##                  {fp.duplicate_lines} lines\n", style="blue")
+    text.append(f"  Clean Code    {clean_bar:<24}  {fp.clean_lines:,} lines ({fp.clean_pct}%)\n", style="green")
+    text.append(f"  Dead Code     {dead_bar:<24}  {fp.dead_lines:,} lines ({fp.dead_pct}%)\n", style="yellow")
+    text.append(f"  Complex Code  {complex_bar:<24}  {fp.complex_lines:,} lines ({fp.complex_pct}%)\n", style="red")
+    text.append(f"  Duplication   {dup_bar:<24}  {fp.duplicate_lines:,} lines ({fp.dup_pct}%)\n", style="blue")
 
     return Panel(text, title="[bold cyan]> CODEBASE FINGERPRINT[/bold cyan]", border_style="cyan")
 

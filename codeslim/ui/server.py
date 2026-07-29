@@ -114,18 +114,24 @@ def create_ui_app() -> FastAPI:
             state = minimize_node(state)
 
             file_metrics = state.get("file_metrics")
-            bloat_map = state.get("bloat_map")
-            bloat_score = bloat_map.bloat_score if bloat_map else 0.0
-            grade = bloat_map.grade if bloat_map else "A"
+            bloat_score_raw: float = state.get("bloat_score", 0.0)
+            bloat_score_pct = bloat_score_raw * 100.0
+            grade = (
+                "A" if bloat_score_pct < 25
+                else "B" if bloat_score_pct < 50
+                else "C" if bloat_score_pct < 75
+                else "F"
+            )
+            original_tokens: int = state.get("original_tokens", 0)
 
             return {
-                "bloat_score": round(bloat_score, 1),
+                "bloat_score": round(bloat_score_pct, 1),
                 "grade": grade,
                 "cyclomatic_complexity": file_metrics.max_cc if file_metrics else 0,
                 "dead_code_items": [f"L{d.line}: {d.name}" for d in file_metrics.dead_code] if file_metrics else [],
                 "cognitive_complexity": file_metrics.max_cognitive_complexity if file_metrics else 0,
                 "nesting_depth": file_metrics.max_nesting_depth if file_metrics else 0,
-                "original_tokens": bloat_map.original_tokens if bloat_map else 0,
+                "original_tokens": original_tokens,
             }
         except Exception as exc:
             log.error("analyze_endpoint_failed", error=str(exc))
@@ -203,7 +209,7 @@ def create_ui_app() -> FastAPI:
                 "total_dead_lines": sum(r.dead_code_count for r in report.file_reports),
                 "files": files_data,
                 "phantom_functions": [p.function_name for p in report.phantom_functions],
-                "hallucination_spread": len(report.phantom_functions),
+                "hallucination_spread": len(report.hallucination_spread),
             }
         except Exception as exc:
             log.error("scan_endpoint_failed", error=str(exc))

@@ -44,6 +44,21 @@ class CodebaseFingerprint(BaseModel):
 
     @computed_field
     @property
+    def dead_pct(self) -> float:
+        return round((self.dead_lines / self.total_lines * 100), 1) if self.total_lines > 0 else 0.0
+
+    @computed_field
+    @property
+    def complex_pct(self) -> float:
+        return round((self.complex_lines / self.total_lines * 100), 1) if self.total_lines > 0 else 0.0
+
+    @computed_field
+    @property
+    def dup_pct(self) -> float:
+        return round((self.duplicate_lines / self.total_lines * 100), 1) if self.total_lines > 0 else 0.0
+
+    @computed_field
+    @property
     def bloat_pct(self) -> float:
         return round(100.0 - self.clean_pct, 1)
 

@@ -16,6 +16,7 @@ _TIER_MAP: dict[str, str] = {
     "remove_dead_code": "auto_safe",
     "inline_variable": "suggest",
     "simplify_complexity": "suggest",
+    "consolidate_classes": "suggest",
     "extract_function": "flag_only",
 }
 
