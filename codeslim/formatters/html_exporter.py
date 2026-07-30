@@ -234,6 +234,7 @@ def export_html_report(project_report: ProjectReport, output_path: Path) -> Path
         Written output Path.
     """
     html_content = generate_html_observatory_report(project_report)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(html_content, encoding="utf-8")
     log.info("html_report_exported", path=str(output_path), bytes=len(html_content))
     return output_path

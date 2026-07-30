@@ -159,6 +159,7 @@ def bot() -> None:
 def bot_serve(host: str, port: str | int, auto_commit: bool) -> None:
     """Start the CodeSlim GitHub Webhook Bot HTTP server."""
     import os
+
     import uvicorn
 
     from codeslim.bot.app import create_bot_app
