@@ -446,7 +446,7 @@ OPENAI_MODEL=gpt-4o-mini
 
 # ─── Groq Cloud Configuration (optional, fast inference) ──────────────────────
 GROQ_API_KEY=gsk_...
-GROQ_MODEL=llama-3.1-70b-versatile
+GROQ_MODEL=ollama-3.1-70b-versatile
 
 # ─── GitHub PR Bot Configuration ──────────────────────────────────────────────
 GITHUB_TOKEN=ghp_...
