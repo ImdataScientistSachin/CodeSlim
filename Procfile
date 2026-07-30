@@ -1,1 +1,1 @@
-web: codeslim bot serve --host 0.0.0.0 --port $PORT
+web: codeslim bot serve --host 0.0.0.0

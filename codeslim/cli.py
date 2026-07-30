@@ -154,29 +154,36 @@ def bot() -> None:
 
 @bot.command("serve")
 @click.option("--host", default="0.0.0.0", help="Host IP to bind web server")
-@click.option("--port", default=8000, type=int, help="Port to listen for webhooks")
+@click.option("--port", default="8000", help="Port to listen for webhooks")
 @click.option("--auto-commit", is_flag=True, help="Enable automatic commits for Tier-1 dead code fixes")
-def bot_serve(host: str, port: int, auto_commit: bool) -> None:
+def bot_serve(host: str, port: str | int, auto_commit: bool) -> None:
     """Start the CodeSlim GitHub Webhook Bot HTTP server."""
     import os
     import uvicorn
 
     from codeslim.bot.app import create_bot_app
 
+    final_port = 8000
     env_port = os.environ.get("PORT")
     if env_port:
         try:
-            port = int(env_port)
+            final_port = int(env_port)
         except ValueError:
             pass
+    else:
+        try:
+            final_port = int(port)
+        except (ValueError, TypeError):
+            final_port = 8000
 
     env_host = os.environ.get("HOST")
     if env_host:
         host = env_host
 
     app = create_bot_app(auto_commit=auto_commit)
-    console.print(f"[bold cyan]Starting CodeSlim GitHub PR Bot Server on http://{host}:{port}...[/bold cyan]")
-    uvicorn.run(app, host=host, port=port)
+    console.print(f"[bold cyan]Starting CodeSlim GitHub PR Bot Server on http://{host}:{final_port}...[/bold cyan]")
+    uvicorn.run(app, host=host, port=final_port)
+
 
 
 
