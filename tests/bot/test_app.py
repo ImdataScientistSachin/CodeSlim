@@ -30,7 +30,19 @@ def test_verify_github_signature_invalid():
     assert verify_github_signature(payload, "invalid_prefix", secret) is False
 
 
+def test_root_endpoint():
+    app = create_bot_app(github_token="test_token", webhook_secret="test_secret")
+    client = TestClient(app)
+
+    resp = client.get("/")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["status"] == "online"
+    assert data["service"] == "CodeSlim GitHub PR Bot & Audit Engine"
+
+
 def test_healthcheck_endpoint():
+
     app = create_bot_app(github_token="test_token", webhook_secret="test_secret", auto_commit=True)
     client = TestClient(app)
 

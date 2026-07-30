@@ -158,13 +158,26 @@ def bot() -> None:
 @click.option("--auto-commit", is_flag=True, help="Enable automatic commits for Tier-1 dead code fixes")
 def bot_serve(host: str, port: int, auto_commit: bool) -> None:
     """Start the CodeSlim GitHub Webhook Bot HTTP server."""
+    import os
     import uvicorn
 
     from codeslim.bot.app import create_bot_app
 
+    env_port = os.environ.get("PORT")
+    if env_port:
+        try:
+            port = int(env_port)
+        except ValueError:
+            pass
+
+    env_host = os.environ.get("HOST")
+    if env_host:
+        host = env_host
+
     app = create_bot_app(auto_commit=auto_commit)
     console.print(f"[bold cyan]Starting CodeSlim GitHub PR Bot Server on http://{host}:{port}...[/bold cyan]")
     uvicorn.run(app, host=host, port=port)
+
 
 
 @main.command("ui")

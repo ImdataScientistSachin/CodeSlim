@@ -92,7 +92,20 @@ def create_bot_app(
     github_client = GitHubClient(token=token)
     pr_handler = PRHandler(github_client=github_client)
 
+    @app.get("/")
+    async def root() -> dict[str, Any]:
+        """Root status endpoint for readiness checks and service overview."""
+        return {
+            "status": "online",
+            "service": "CodeSlim GitHub PR Bot & Audit Engine",
+            "version": "2.0.0",
+            "docs": "/docs",
+            "healthcheck": "/healthcheck",
+            "webhook_endpoint": "/webhook/github",
+        }
+
     @app.get("/healthcheck")
+
     async def healthcheck() -> dict[str, Any]:
         """Healthcheck endpoint for readiness/liveness probes."""
         return {

@@ -9,5 +9,8 @@ COPY data/ ./data/
 
 RUN pip install --no-cache-dir -e .
 
-ENTRYPOINT ["codeslim"]
-CMD ["--help"]
+EXPOSE 8000
+ENV PORT=8000
+
+CMD ["sh", "-c", "codeslim bot serve --host 0.0.0.0 --port ${PORT}"]
+
