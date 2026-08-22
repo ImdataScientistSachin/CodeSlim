@@ -5,7 +5,6 @@ Provides a unified interface for local Ollama execution and OpenAI cloud fallbac
 Enforces structured JSON completions and escalating retry prompts on schema failures.
 """
 
-import hashlib
 import json
 from typing import TypeVar
 
@@ -109,11 +108,6 @@ class LLMClient:
             model_name=self.fallback_model,
             temperature=self.temperature,
         )
-
-    def _generate_cache_key(self, system_prompt: str, user_prompt: str) -> str:
-        """SHA-256 hash key generation for cache security."""
-        combined = f"{self.primary_model}:{self.temperature}:{system_prompt}:{user_prompt}"
-        return hashlib.sha256(combined.encode("utf-8")).hexdigest()
 
     async def invoke(self, system_prompt: str, user_prompt: str) -> str:
         """

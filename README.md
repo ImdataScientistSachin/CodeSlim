@@ -4,11 +4,19 @@
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:00ff88,100:6e40c9&height=220&section=header&text=CodeSlim&fontSize=80&fontColor=ffffff&fontAlignY=38&desc=Agentic%20AI%20Code%20Quality%20Audit%20%E2%80%A2%20Context%20Minimizer%20%E2%80%A2%20Guardrail%20Engine&descAlignY=58&descSize=17&animation=fadeIn" width="100%"/>
 
 <!-- TYPING ANIMATION -->
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 [![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&size=18&duration=3000&pause=800&color=00FF88&center=true&vCenter=true&multiline=true&width=860&height=80&lines=76%25+token+reduction+%C2%B7+%240.00+LLM+cost+for+80%25+of+fixes+%C2%B7+0%25+hallucination+corruption;6-Stage+LangGraph+DAG+%C2%B7+LibCST+%C2%B7+AST+Safety+Gate+%C2%B7+Ollama+%2F+OpenAI+%2F+Groq;The+automated+guardrail+between+AI+code+generation+and+production+%F0%9F%9B%A1%EF%B8%8F)](https://git.io/typing-svg)
 
 <br/>
 
 <!-- PRIMARY QUALITY BADGES -->
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 [![Python Version](https://img.shields.io/badge/python-3.11%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![CI Tests](https://img.shields.io/github/actions/workflow/status/ImdataScientistSachin/CodeSlim/ci.yml?branch=main&label=96%2F96%20Tests&style=for-the-badge&logo=pytest&logoColor=white&color=2ea44f)](#-testing--quality-verification)
 [![LangGraph Pipeline](https://img.shields.io/badge/LangGraph-Multi--Agent%20Pipeline-6e40c9?style=for-the-badge&logo=diagramsdotnet&logoColor=white)](#-architecture--6-stage-pipeline)
@@ -21,6 +29,10 @@
 <br/>
 
 <!-- SOCIAL PROOF BADGES -->
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 [![Star on GitHub](https://img.shields.io/github/stars/ImdataScientistSachin/CodeSlim?style=for-the-badge&logo=github&color=6e40c9&logoColor=white&label=%E2%AD%90%20Stars)](https://github.com/ImdataScientistSachin/CodeSlim)
 [![Fork](https://img.shields.io/github/forks/ImdataScientistSachin/CodeSlim?style=for-the-badge&logo=github&color=00ff88&logoColor=black&label=%F0%9F%8D%B4%20Forks)](https://github.com/ImdataScientistSachin/CodeSlim/fork)
 [![Issues](https://img.shields.io/github/issues/ImdataScientistSachin/CodeSlim?style=for-the-badge&logo=github&color=FF6B6B&logoColor=white&label=%F0%9F%90%9B%20Issues)](https://github.com/ImdataScientistSachin/CodeSlim/issues)
@@ -30,6 +42,17 @@
 
 > **CodeSlim** is a deterministic-first, open-source **Agentic AI CLI Engine** that sits between Python codebases and Large Language Models. It combines fast C-native static analysis sensors (Radon, Vulture, Lizard, Tree-Sitter) with LibCST Concrete Syntax Trees to slash token bloat by up to **76%**, while enforcing **AST syntax guardrails** to prevent LLM hallucinations from ever corrupting your source code.
 
+<<<<<<< Updated upstream
+=======
+> [!TIP]
+> 🎯 **FOR RECRUITERS & HIRING MANAGERS (30-SECOND DEMO)**
+> Want to see CodeSlim in action on your local machine? Run the 1-click animated live demo runner:
+> ```bash
+> python examples/linkedin_demo_runner.py
+> ```
+> *This runs an animated Tokyo Night terminal scan and automatically launches the interactive HTML Observatory dashboard in your default browser.*
+
+>>>>>>> Stashed changes
 **[⚡ Quick Start](#-quick-start)** &nbsp;·&nbsp; **[💻 CLI Commands](#-cli-commands--usage)** &nbsp;·&nbsp; **[🏗️ Architecture](#-architecture--6-stage-pipeline)** &nbsp;·&nbsp; **[🐳 Docker](#-docker-deployment)** &nbsp;·&nbsp; **[🤖 GitHub Action](#-github-actions-integration)** &nbsp;·&nbsp; **[🤝 Contributing](#-contributing)**
 
 </div>
@@ -75,6 +98,7 @@ AI models generate code token-by-token, optimizing for _"Does this satisfy the p
 
 ### 📊 Industry Benchmark Data (2025–2026)
 
+<<<<<<< Updated upstream
 | Metric | Benchmark | Source | Impact |
 | :----- | :-------- | :----- | :----: |
 | **Defect Multiplier** | AI-generated code has **1.7× more bugs** than human code | CodeRabbit 2026 | 🔴 Critical |
@@ -83,6 +107,16 @@ AI models generate code token-by-token, optimizing for _"Does this satisfy the p
 | **PR Size Inflation** | Average PR size grew **154%** post-AI adoption | Google DORA 2025 | 🟡 Major |
 | **Hallucination Rate** | **5.2–21.7%** of AI package suggestions are non-existent | USENIX Security 2025 | 🔴 Critical |
 | **CodeSlim Reduction** | Production reduction of **31.7% LOC** achieved | Internal Benchmarks | ✅ Proven |
+=======
+| Metric                  | Benchmark                                                | Source                      |   Impact    |
+| :---------------------- | :------------------------------------------------------- | :-------------------------- | :---------: |
+| **Defect Multiplier**   | AI-generated code has **1.7× more bugs** than human code | CodeRabbit 2026             | 🔴 Critical |
+| **Code Duplication**    | AI code exhibits **up to 8× more duplication**           | Pure Math AI                | 🔴 Critical |
+| **Developer Trust Gap** | **96% of engineers** distrust unverified AI code         | Sonar / Stack Overflow 2026 | 🔴 Critical |
+| **PR Size Inflation**   | Average PR size grew **154%** post-AI adoption           | Google DORA 2025            |  🟡 Major   |
+| **Hallucination Rate**  | **5.2–21.7%** of AI package suggestions are non-existent | USENIX Security 2025        | 🔴 Critical |
+| **CodeSlim Reduction**  | Production reduction of **31.7% LOC** achieved           | Internal Benchmarks         |  ✅ Proven  |
+>>>>>>> Stashed changes
 
 ---
 
@@ -91,6 +125,7 @@ AI models generate code token-by-token, optimizing for _"Does this satisfy the p
 > [!IMPORTANT]
 > **Deterministic First, AI Second**: 80% of dead-code purging and import pruning is performed with **100% mathematical precision** via LibCST — zero LLM cost. The LLM is invoked strictly on pre-minimized, complex function chunks.
 
+<<<<<<< Updated upstream
 | Feature | Description | Impact |
 | :------ | :---------- | :----- |
 | ⚡ **Lossless Context Pruning** | Strips non-essential docstrings and dead blocks via LibCST + C-Native Tree-Sitter (`tree-sitter>=0.26.0`). | **Up to 76% Token Reduction** |
@@ -103,6 +138,20 @@ AI models generate code token-by-token, optimizing for _"Does this satisfy the p
 | 🤖 **Auto-Fix GitHub PR Bot** | Asynchronous FastAPI webhook receiver with HMAC-SHA256 verification for automated PR audits. | **Automated CI/CD Code Review** |
 | 🪝 **Git Pre-Commit Hook** | Installs lightweight pre-commit guardrails to strip dead code in **< 50ms** before committing. | **Shift-Left Quality Enforcement** |
 | 🎬 **GitHub Composite Action** | One-line workflow step to audit any PR with zero server setup. | **Zero-Infrastructure CI Integration** |
+=======
+| Feature                         | Description                                                                                                | Impact                                 |
+| :------------------------------ | :--------------------------------------------------------------------------------------------------------- | :------------------------------------- |
+| ⚡ **Lossless Context Pruning** | Strips non-essential docstrings and dead blocks via LibCST + C-Native Tree-Sitter (`tree-sitter>=0.26.0`). | **Up to 76% Token Reduction**          |
+| 🛡️ **AST Syntax Safety Gate**   | Validates `ast.parse()` syntax and enforces public class/function signature & decorator preservation.      | **0% Hallucination Corruption**        |
+| ⚙️ **Deterministic Fix Node**   | Auto-purges unused imports and dead variables without calling LLMs.                                        | **$0.00 LLM Cost for 80% of Fixes**    |
+| 🔒 **Local-First Privacy**      | Runs 100% local, offline LLMs via Ollama (`qwen2.5-coder:3b`) with optional Groq/OpenAI cloud fallback.    | **Complete Code Privacy**              |
+| 🎯 **3-Tier Confidence Engine** | Categorizes refactor actions into `Auto-Safe`, `Suggest`, and `Flag-Only` tiers.                           | **Zero Unintended Breaking Changes**   |
+| 💾 **SHA-256 Response Cache**   | DiskCache stores LLM completions keyed by SHA-256 prompt hash, eliminating duplicate API calls.            | **$0.00 Cost on Re-runs**              |
+| 🔭 **HTML Observatory UI**      | Generates standalone Tokyo Night interactive dashboards with code diff surgery modals.                     | **Instant Codebase Visibility**        |
+| 🤖 **Auto-Fix GitHub PR Bot**   | Asynchronous FastAPI webhook receiver with HMAC-SHA256 verification for automated PR audits.               | **Automated CI/CD Code Review**        |
+| 🪝 **Git Pre-Commit Hook**      | Installs lightweight pre-commit guardrails to strip dead code in **< 50ms** before committing.             | **Shift-Left Quality Enforcement**     |
+| 🎬 **GitHub Composite Action**  | One-line workflow step to audit any PR with zero server setup.                                             | **Zero-Infrastructure CI Integration** |
+>>>>>>> Stashed changes
 
 ---
 
@@ -110,6 +159,7 @@ AI models generate code token-by-token, optimizing for _"Does this satisfy the p
 
 Existing tools were designed for **human developer mistakes**, not **AI generation bloat patterns**.
 
+<<<<<<< Updated upstream
 | Tool | Category | Why It Fails for AI Bloat | CodeSlim Advantage |
 | :--- | :------- | :------------------------ | :----------------- |
 | **Ruff / Flake8** | Syntax & style linting | Passes bloated AI code because syntax is valid | Detects structural bloat, cognitive nesting depth & hallucinated APIs |
@@ -117,6 +167,28 @@ Existing tools were designed for **human developer mistakes**, not **AI generati
 | **CodeRabbit / Qodo** | AI PR review comments | Posts text comments; cannot rewrite or minimize source code | Generates behavior-preserving code rewrites with verified unified diffs |
 | **DepScope** | Standalone import scanner | Scans imports only; no code minimization or refactoring | Integrates registry lookups into the full 4-stage optimizer pipeline |
 | **Pylint** | General code quality | No AI-specific bloat heuristics | Tuned Bloat Score formula targeting AI generation patterns specifically |
+=======
+| Tool                  | Category                  | Why It Fails for AI Bloat                                   | CodeSlim Advantage                                                      |
+| :-------------------- | :------------------------ | :---------------------------------------------------------- | :---------------------------------------------------------------------- |
+| **Ruff / Flake8**     | Syntax & style linting    | Passes bloated AI code because syntax is valid              | Detects structural bloat, cognitive nesting depth & hallucinated APIs   |
+| **SonarQube**         | Rule-based code smells    | Ignores task intent and fabricated package references       | Integrates AST sensors + multi-stage hallucination verification         |
+| **CodeRabbit / Qodo** | AI PR review comments     | Posts text comments; cannot rewrite or minimize source code | Generates behavior-preserving code rewrites with verified unified diffs |
+| **DepScope**          | Standalone import scanner | Scans imports only; no code minimization or refactoring     | Integrates registry lookups into the full 4-stage optimizer pipeline    |
+| **Pylint**            | General code quality      | No AI-specific bloat heuristics                             | Tuned Bloat Score formula targeting AI generation patterns specifically |
+
+<div align="center">
+
+<br/>
+
+**If CodeSlim catches one hallucinated import before it hits production, it's already paid for itself.**
+
+[![⭐ Star CodeSlim on GitHub](https://img.shields.io/badge/⭐_Star_CodeSlim-on_GitHub-6e40c9?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ImdataScientistSachin/CodeSlim)
+[![🍴 Fork & Contribute](https://img.shields.io/badge/🍴_Fork_%26-Contribute-00ff88?style=for-the-badge&logo=github&logoColor=black)](https://github.com/ImdataScientistSachin/CodeSlim/fork)
+
+<br/>
+
+</div>
+>>>>>>> Stashed changes
 
 <div align="center">
 
@@ -137,6 +209,7 @@ Existing tools were designed for **human developer mistakes**, not **AI generati
 
 ### Core Pipeline & Analysis Layer
 
+<<<<<<< Updated upstream
 | Library | Version | Role |
 | :------ | :------ | :--- |
 | **LibCST** | `>=1.4` | Lossless Concrete Syntax Tree transformer — dead-code pruning, import removal, docstring stripping without altering formatting |
@@ -174,16 +247,55 @@ Existing tools were designed for **human developer mistakes**, not **AI generati
 | **Ruff** | `>=0.4` | Blazing-fast linter (E, F, I, UP, B rules; 120 char line length) |
 | **Mypy** | `>=1.10` | Strict static type checking (`python_version = "3.11"`) |
 | **uv** | latest | Recommended ultra-fast package manager and environment sync |
+=======
+| Library                       | Version            | Role                                                                                                                           |
+| :---------------------------- | :----------------- | :----------------------------------------------------------------------------------------------------------------------------- |
+| **LibCST**                    | `>=1.4`            | Lossless Concrete Syntax Tree transformer — dead-code pruning, import removal, docstring stripping without altering formatting |
+| **tree-sitter**               | `>=0.26.0,<0.27.0` | C-native AST parser for sub-10ms skeleton extraction                                                                           |
+| **tree-sitter-python**        | `==0.25.0`         | Python grammar bindings for Tree-Sitter                                                                                        |
+| **tree-sitter-language-pack** | `>=1.12.0,<2.0.0`  | Multi-language grammar pack (future polyglot support)                                                                          |
+| **Python ast**                | stdlib             | `ast.parse()` syntax validation in the AST Guardrail Safety Gate                                                               |
+| **Radon**                     | `>=6.0`            | Cyclomatic Complexity (CC), Maintainability Index (MI), Raw LOC metrics                                                        |
+| **Vulture**                   | `>=2.7`            | Dead code detection, unused import scanning (min_conf ≥ 80)                                                                    |
+| **Lizard**                    | `>=1.18`           | Cognitive Complexity and NLOC (Non-Comment Lines of Code)                                                                      |
+
+### LLM, NLP & Orchestration
+
+| Library          | Version          | Role                                                                 |
+| :--------------- | :--------------- | :------------------------------------------------------------------- |
+| **LangGraph**    | `>=1.2.0,<2.0.0` | Stateful multi-node pipeline orchestration (graph-style agentic DAG) |
+| **OpenAI SDK**   | `>=1.0`          | OpenAI Cloud provider fallback (`gpt-4o-mini`)                       |
+| **httpx**        | `>=0.27`         | Async HTTP client for Ollama local API & Groq API                    |
+| **tiktoken**     | `>=0.5`          | Token counting and budget enforcement via `cl100k_base` encoding     |
+| **diskcache**    | `>=5.6`          | SHA-256 keyed on-disk LLM response caching                           |
+| **NLTK**         | `>=3.8`          | Tokenization and sentence splitting for `DocstringCompressor`        |
+| **scikit-learn** | `>=1.4`          | TF-IDF score ranking to extract top-k informative sentences          |
+
+### API, CLI & Quality Tooling
+
+| Library               | Version   | Role                                                                 |
+| :-------------------- | :-------- | :------------------------------------------------------------------- |
+| **FastAPI**           | `>=0.110` | Web Studio UI server, GitHub PR Webhook receiver, and REST API       |
+| **Click**             | `>=8.0`   | CLI command parsing and entrypoint (`codeslim` command)              |
+| **Rich**              | `>=13.0`  | Tokyo Night themed terminal dashboards, progress bars, output tables |
+| **Pydantic**          | `>=2.0`   | Data validation and typed schema models throughout the pipeline      |
+| **pydantic-settings** | `>=2.0`   | `.env` file loading and environment variable configuration           |
+| **structlog**         | `>=24.0`  | Structured JSON-compatible logging throughout all pipeline stages    |
+| **pytest**            | `>=8.0`   | Unit and integration test runner (96/96 passing)                     |
+| **Ruff**              | `>=0.4`   | Blazing-fast linter (E, F, I, UP, B rules; 120 char line length)     |
+| **Mypy**              | `>=1.10`  | Strict static type checking (`python_version = "3.11"`)              |
+| **uv**                | latest    | Recommended ultra-fast package manager and environment sync          |
+>>>>>>> Stashed changes
 
 ### Packaging & Deployment
 
-| Tool | Role |
-| :--- | :--- |
-| **setuptools ≥ 68** | Python package build backend |
-| **Docker** | Containerized deployment via `python:3.11-slim` base image |
-| **docker-compose** | Multi-service local orchestration (CodeSlim + Ollama sidecar) |
-| **GitHub Actions** | Composite Action (`action.yml`) for zero-infrastructure CI/CD integration |
-| **pre-commit** | Git hook configuration (`.pre-commit-config.yaml`) |
+| Tool                | Role                                                                      |
+| :------------------ | :------------------------------------------------------------------------ |
+| **setuptools ≥ 68** | Python package build backend                                              |
+| **Docker**          | Containerized deployment via `python:3.11-slim` base image                |
+| **docker-compose**  | Multi-service local orchestration (CodeSlim + Ollama sidecar)             |
+| **GitHub Actions**  | Composite Action (`action.yml`) for zero-infrastructure CI/CD integration |
+| **pre-commit**      | Git hook configuration (`.pre-commit-config.yaml`)                        |
 
 ---
 
@@ -243,6 +355,10 @@ CodeSlim processes code through a deterministic **6-stage agentic pipeline** orc
 ### LangGraph Orchestration
 
 The pipeline stages are wired as a **LangGraph stateful DAG**. Each node receives the shared `PipelineState` TypedDict, transforms it, and passes control to the next node. The graph handles:
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 - **Conditional branching** — skips the LLM Refactor Node when `CC ≤ 10` (cost optimization)
 - **Circuit-breaking** — falls back to the Deterministic Fix Node when the AST Gate rejects LLM output
 
@@ -323,9 +439,17 @@ codeslim scan ./codeslim/ --export-html observatory_report.html
 ### 🎬 See It In Action
 
 > **To see the Tokyo Night Rich terminal dashboard**, run:
+<<<<<<< Updated upstream
 > ```bash
 > codeslim scan ./codeslim/ --format rich
 > ```
+=======
+>
+> ```bash
+> codeslim scan ./codeslim/ --format rich
+> ```
+>
+>>>>>>> Stashed changes
 > The dashboard renders color-coded bloat scores (Grade A–F), cyclomatic complexity heatmaps, dead-code flagging, and a per-file summary table — all in your terminal.
 >
 > **To see the HTML Observatory**, open `observatory_report.html` in any browser after running `codeslim scan --export-html`. It's a fully standalone, zero-server interactive report with a code diff surgery modal.
@@ -563,6 +687,7 @@ BloatScore = min(100.0,
 )
 ```
 
+<<<<<<< Updated upstream
 | Grade | Score Range | Interpretation |
 | :---: | :---------: | :------------- |
 | **A** | 0–20 | Clean — minimal bloat, no LLM intervention needed |
@@ -570,6 +695,15 @@ BloatScore = min(100.0,
 | **C** | 41–60 | Moderate — LLM Refactor Node invoked on complex functions |
 | **D** | 61–80 | High bloat — significant structural complexity; full pipeline runs |
 | **F** | 81–100 | Critical — AI over-engineering detected; immediate intervention required |
+=======
+| Grade | Score Range | Interpretation                                                           |
+| :---: | :---------: | :----------------------------------------------------------------------- |
+| **A** |    0–20     | Clean — minimal bloat, no LLM intervention needed                        |
+| **B** |    21–40    | Good — minor dead code; Deterministic Fix Node handles it                |
+| **C** |    41–60    | Moderate — LLM Refactor Node invoked on complex functions                |
+| **D** |    61–80    | High bloat — significant structural complexity; full pipeline runs       |
+| **F** |   81–100    | Critical — AI over-engineering detected; immediate intervention required |
+>>>>>>> Stashed changes
 
 ---
 
@@ -577,12 +711,21 @@ BloatScore = min(100.0,
 
 CodeSlim is architected **privacy-first**. Your source code never leaves your machine unless you explicitly configure a cloud provider.
 
+<<<<<<< Updated upstream
 | Provider | Privacy | Cost | Speed | Setup |
 | :------- | :-----: | :--: | :---: | :---- |
 | **Ollama (qwen2.5-coder:3b)** | ✅ 100% Local | $0.00 | ~25 tok/s | `ollama pull qwen2.5-coder:3b` |
 | **Groq (llama-3.1-70b)** | ☁️ Cloud | Pay-per-token | ~200 tok/s | Set `GROQ_API_KEY` |
 | **OpenAI (gpt-4o-mini)** | ☁️ Cloud | Pay-per-token | ~150 tok/s | Set `OPENAI_API_KEY` |
 | **Node 2.5 CST Fallback** | ✅ 100% Local | $0.00 | Instant | Always available |
+=======
+| Provider                      |    Privacy    |     Cost      |   Speed    | Setup                          |
+| :---------------------------- | :-----------: | :-----------: | :--------: | :----------------------------- |
+| **Ollama (qwen2.5-coder:3b)** | ✅ 100% Local |     $0.00     | ~25 tok/s  | `ollama pull qwen2.5-coder:3b` |
+| **Groq (llama-3.1-70b)**      |   ☁️ Cloud    | Pay-per-token | ~200 tok/s | Set `GROQ_API_KEY`             |
+| **OpenAI (gpt-4o-mini)**      |   ☁️ Cloud    | Pay-per-token | ~150 tok/s | Set `OPENAI_API_KEY`           |
+| **Node 2.5 CST Fallback**     | ✅ 100% Local |     $0.00     |  Instant   | Always available               |
+>>>>>>> Stashed changes
 
 **Ollama Hardware Requirements for `qwen2.5-coder:3b` (Q4_K_M quantization):**
 
@@ -670,8 +813,13 @@ jobs:
       - name: Run CodeSlim Audit
         uses: ImdataScientistSachin/CodeSlim@main
         with:
+<<<<<<< Updated upstream
           path: "."                                       # Directory to analyze
           groq-api-key: ${{ secrets.GROQ_API_KEY }}      # Optional: cloud LLM fallback
+=======
+          path: "." # Directory to analyze
+          groq-api-key: ${{ secrets.GROQ_API_KEY }} # Optional: cloud LLM fallback
+>>>>>>> Stashed changes
 ```
 
 The action outputs a `codeslim_report.json` file with GitHub PR annotation format for downstream steps.
@@ -777,17 +925,27 @@ CodeSlim/
 
 ## 💻 Hardware Requirements
 
+<<<<<<< Updated upstream
 | Configuration | Spec | Notes |
 | :------------ | :--- | :---- |
 | **Minimum (CLI Only)** | 4 GB RAM, any CPU | Static analysis + Deterministic Fix Node; no GPU needed |
 | **Recommended (Ollama Local)** | 16 GB RAM, 4 GB VRAM (GTX 1650+) | Runs `qwen2.5-coder:3b` at ~25 tok/s locally |
 | **Cloud Fallback** | Any | Any machine; send code to Groq/OpenAI instead of Ollama |
 | **Docker** | 4 GB RAM minimum | build-essential required for tree-sitter C extensions |
+=======
+| Configuration                  | Spec                             | Notes                                                   |
+| :----------------------------- | :------------------------------- | :------------------------------------------------------ |
+| **Minimum (CLI Only)**         | 4 GB RAM, any CPU                | Static analysis + Deterministic Fix Node; no GPU needed |
+| **Recommended (Ollama Local)** | 16 GB RAM, 4 GB VRAM (GTX 1650+) | Runs `qwen2.5-coder:3b` at ~25 tok/s locally            |
+| **Cloud Fallback**             | Any                              | Any machine; send code to Groq/OpenAI instead of Ollama |
+| **Docker**                     | 4 GB RAM minimum                 | build-essential required for tree-sitter C extensions   |
+>>>>>>> Stashed changes
 
 ---
 
 ## 🗺 Roadmap
 
+<<<<<<< Updated upstream
 | Status | Feature |
 | :----: | :------ |
 | ✅ Done | 6-stage deterministic + LLM pipeline |
@@ -807,6 +965,27 @@ CodeSlim/
 | 🔜 Planned | Multi-file cross-reference dead-code analysis |
 | 🔜 Planned | SARIF output format for GitHub Security tab integration |
 | 🔜 Planned | Configurable Bloat Score weight profiles (strict / balanced / lenient) |
+=======
+|     Status     | Feature                                                                |
+| :------------: | :--------------------------------------------------------------------- |
+|    ✅ Done     | 6-stage deterministic + LLM pipeline                                   |
+|    ✅ Done     | LibCST lossless import pruning & docstring compression                 |
+|    ✅ Done     | AST Invariant Gate safety rejection                                    |
+|    ✅ Done     | Ollama / OpenAI / Groq multi-provider chain                            |
+|    ✅ Done     | FastAPI Web Studio + HTML Observatory                                  |
+|    ✅ Done     | GitHub PR Webhook Bot (HMAC-SHA256)                                    |
+|    ✅ Done     | Git pre-commit hook installer                                          |
+|    ✅ Done     | GitHub Composite Action (`action.yml`)                                 |
+|    ✅ Done     | Docker + docker-compose deployment                                     |
+|    ✅ Done     | SHA-256 DiskCache LLM response caching                                 |
+| 🔄 In Progress | PyPI package publish (`pip install codeslim`)                          |
+| 🔄 In Progress | JavaScript / TypeScript support via tree-sitter-javascript             |
+|   🔜 Planned   | VS Code Extension                                                      |
+|   🔜 Planned   | Claude / Anthropic API provider                                        |
+|   🔜 Planned   | Multi-file cross-reference dead-code analysis                          |
+|   🔜 Planned   | SARIF output format for GitHub Security tab integration                |
+|   🔜 Planned   | Configurable Bloat Score weight profiles (strict / balanced / lenient) |
+>>>>>>> Stashed changes
 
 ---
 
@@ -883,6 +1062,10 @@ A: CodeSlim uses Pydantic V2 schema validation (`LLMRefactorResponse`) on every 
 If you discover a security vulnerability, please **do not open a public GitHub issue**. Instead, email the maintainer directly or use GitHub's private vulnerability reporting. We follow responsible disclosure and will acknowledge reports within 48 hours.
 
 **Security guarantees built into the pipeline:**
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 - No `eval()`, `exec()`, or `shell=True` anywhere in the codebase
 - All LLM responses validated through Pydantic V2 before any code mutation
 - HMAC-SHA256 signature verification on all GitHub webhook payloads
@@ -900,7 +1083,11 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 **Built with ❤️ for the Python & AI engineering community.**
 
+<<<<<<< Updated upstream
 *The AI coding explosion demands automated guardrails. CodeSlim is that guardrail.*
+=======
+_The AI coding explosion demands automated guardrails. CodeSlim is that guardrail._
+>>>>>>> Stashed changes
 
 <br/>
 

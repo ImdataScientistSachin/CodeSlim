@@ -5,6 +5,7 @@ Provides REST API endpoints for single-file analysis, optimization, codebase sca
 AI provider health checks, git hook installation, and interactive HTML report export.
 """
 
+import asyncio
 from pathlib import Path
 from typing import Any
 
@@ -17,6 +18,7 @@ from pydantic import BaseModel, Field
 from codeslim.config import get_settings
 from codeslim.formatters.html_exporter import generate_html_observatory_report
 from codeslim.hooks import install_git_pre_commit_hook
+from codeslim.models.project_report import CodebaseFingerprint, ProjectReport
 from codeslim.optimizer.diff_generator import generate_unified_diff
 from codeslim.pipeline.nodes import analyze_node, minimize_node
 from codeslim.pipeline.orchestrator import PipelineOrchestrator
@@ -180,7 +182,7 @@ def create_ui_app() -> FastAPI:
 
     # 4. Entire Codebase Scan Endpoint
     @app.post("/api/v1/scan")
-    def scan_directory(req: DirectoryScanRequest) -> dict[str, Any]:
+    async def scan_directory_endpoint(req: DirectoryScanRequest) -> dict[str, Any]:
         """Scan an entire repository directory and return Project Observatory metrics."""
         target_path = Path(req.directory).resolve()
         if not target_path.exists():
@@ -188,7 +190,7 @@ def create_ui_app() -> FastAPI:
 
         try:
             project_orchestrator = ProjectOrchestrator()
-            report = project_orchestrator.scan_directory(str(target_path), no_llm=req.no_llm)
+            report = await project_orchestrator.scan_directory_async(str(target_path), no_llm=req.no_llm)
 
             files_data = []
             for r in report.file_reports:
@@ -232,16 +234,101 @@ def create_ui_app() -> FastAPI:
 
     # 6. Interactive HTML Observatory Export Endpoint
     @app.get("/api/v1/export-html")
-    def export_html(directory: str = ".") -> HTMLResponse:
-        """Generate and export standalone interactive HTML Observatory report."""
+    async def export_html(directory: str = ".", download: bool = True) -> HTMLResponse:
+        """
+        Generate and export standalone interactive HTML Observatory report.
+
+        Runs concurrently via scan_directory_async — non-blocking on the event loop.
+
+        Args:
+            directory: Path to target directory to scan.
+            download: If True, attaches Content-Disposition header for forced file download.
+        """
         target_path = Path(directory).resolve()
         if not target_path.exists():
             raise HTTPException(status_code=404, detail=f"Directory '{directory}' not found.")
 
         project_orchestrator = ProjectOrchestrator()
-        report = project_orchestrator.scan_directory(str(target_path), no_llm=True)
-        html_content = generate_html_observatory_report(report)
-        return HTMLResponse(content=html_content, status_code=200)
+        # Run concurrent multi-file scan directly (already async — no blocking)
+        report = await project_orchestrator.scan_directory_async(str(target_path), no_llm=True)
+        # HTML template rendering is CPU-bound but fast — run in thread to avoid blocking event loop
+        html_content = await asyncio.to_thread(generate_html_observatory_report, report)
+
+        headers = {}
+        if download:
+            headers["Content-Disposition"] = 'attachment; filename="observatory_report.html"'
+
+        return HTMLResponse(content=html_content, status_code=200, headers=headers)
+
+    # 6b. Export HTML Observatory for a Single Code Snippet
+    @app.post("/api/v1/export-html-snippet")
+    async def export_html_snippet(req: CodeAnalysisRequest, download: bool = True) -> HTMLResponse:
+        """
+        Generate standalone HTML Observatory report for a single code snippet.
+
+        This endpoint is the context-aware counterpart to /api/v1/export-html.
+        Instead of scanning the entire codebase directory, it runs the analysis
+        pipeline on the user's provided code snippet and wraps the result in
+        a ProjectReport for the HTML exporter.
+
+        Args:
+            req: Code snippet and filename from the UI editor.
+            download: If True, attaches Content-Disposition header for forced download.
+        """
+        if not req.code.strip():
+            raise HTTPException(status_code=400, detail="Empty code snippet provided.")
+
+        tmp_dir = Path("./.codeslim_tmp")
+        tmp_dir.mkdir(exist_ok=True)
+        tmp_file = tmp_dir / req.filename
+        try:
+            tmp_file.write_text(req.code, encoding="utf-8")
+
+            orchestrator = PipelineOrchestrator()
+            report = await orchestrator.run_pipeline(tmp_file, no_llm=True)
+
+            # Wrap single-file CodeSlimReport into a ProjectReport for the HTML exporter
+            total_lines = report.original_lines
+            dead_lines = report.dead_code_count
+            complex_lines = sum(
+                fn.line_end - fn.line_start
+                for fn in (report.metrics.functions if report.metrics else [])
+                if fn.cyclomatic_complexity > 10
+            )
+            dup_lines = int(total_lines * report.duplication_ratio) if total_lines > 0 else 0
+            clean_lines = max(0, total_lines - dead_lines - complex_lines - dup_lines)
+
+            fingerprint = CodebaseFingerprint(
+                clean_lines=clean_lines,
+                dead_lines=dead_lines,
+                complex_lines=complex_lines,
+                duplicate_lines=dup_lines,
+                total_lines=total_lines,
+            )
+
+            project_report = ProjectReport(
+                project_path=req.filename,
+                total_files=1,
+                total_lines=total_lines,
+                overall_bloat_score=report.bloat_score,
+                overall_grade=report.bloat_grade,
+                file_reports=[report],
+                fingerprint=fingerprint,
+            )
+
+            html_content = await asyncio.to_thread(generate_html_observatory_report, project_report)
+
+            headers = {}
+            if download:
+                headers["Content-Disposition"] = 'attachment; filename="observatory_report.html"'
+
+            return HTMLResponse(content=html_content, status_code=200, headers=headers)
+        except Exception as exc:
+            log.error("export_html_snippet_failed", error=str(exc))
+            raise HTTPException(status_code=400, detail=f"Export failed: {str(exc)}") from exc
+        finally:
+            if tmp_file.exists():
+                tmp_file.unlink(missing_ok=True)
 
     # 7. Serve Web Studio SPA Front-End at /, /index.html, and /studio
     @app.get("/", response_class=HTMLResponse)

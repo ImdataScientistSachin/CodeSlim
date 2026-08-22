@@ -33,22 +33,3 @@ def nested_loop():
     assert res["relative_imports"][0]["is_relative"] is True
 
 
-def test_ast_analyzer_extract_local_context(tmp_path: Path) -> None:
-    code = """
-import os
-
-class DataProcessor:
-    pass
-
-def process_item():
-    pass
-"""
-    test_file = tmp_path / "sample.py"
-    test_file.write_text(code, encoding="utf-8")
-
-    analyzer = ASTAnalyzer()
-    context = analyzer.extract_local_context(test_file)
-
-    assert "process_item" in context["top_level_functions"]
-    assert "DataProcessor" in context["classes"]
-    assert "import os" in context["imports"]

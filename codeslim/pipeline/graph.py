@@ -9,9 +9,8 @@ Reflective Critic repair loops.
 from __future__ import annotations
 
 import asyncio
-import multiprocessing
 import operator
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Annotated, Any, Literal, TypedDict, cast
 
@@ -94,17 +93,18 @@ def _run_lizard_worker(target_path_str: str) -> dict[str, Any]:
 async def parallel_sensor_node(state: PipelineState) -> dict[str, Any]:
     """Runs static code sensors in parallel.
 
-    Uses ProcessPoolExecutor with 'spawn' context for pure-Python tools (GIL bypass)
-    and asyncio.to_thread for C-native extensions (Tree-Sitter).
+    Uses a shared ThreadPoolExecutor for pure-Python CPU-bound tools (Radon, Vulture, Lizard).
+    These tools spawn their own subprocesses internally and release the GIL, making threads
+    the correct concurrency primitive here on Windows (avoids 500ms+ spawn overhead per pool).
+    C-native extensions (Tree-Sitter, AST, Duplication) run via asyncio.to_thread.
     """
     target_path_str = state["target_path"]
     target_path = Path(target_path_str)
 
     loop = asyncio.get_running_loop()
-    spawn_ctx = multiprocessing.get_context("spawn")
 
-    # CPU-bound pure-Python tools run via ProcessPoolExecutor (spawn context)
-    with ProcessPoolExecutor(max_workers=3, mp_context=spawn_ctx) as executor:
+    # ThreadPoolExecutor: zero spawn cost, analyzers release GIL via internal subprocesses
+    with ThreadPoolExecutor(max_workers=6) as executor:
         radon_fut = loop.run_in_executor(executor, _run_radon_worker, target_path_str)
         vulture_fut = loop.run_in_executor(executor, _run_vulture_worker, target_path_str)
         lizard_fut = loop.run_in_executor(executor, _run_lizard_worker, target_path_str)

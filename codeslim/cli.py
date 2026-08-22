@@ -23,6 +23,7 @@ from codeslim.formatters.rich_formatter import format_rich_report
 from codeslim.pipeline.orchestrator import PipelineOrchestrator
 from codeslim.pipeline.project_orchestrator import ProjectOrchestrator
 from codeslim.utils.file_utils import collect_target_files
+from codeslim.utils.logger import setup_logging
 
 # Ensure UTF-8 output encoding on Windows consoles
 if hasattr(sys.stdout, "reconfigure"):
@@ -35,6 +36,8 @@ console = Console(force_terminal=True)
 @click.version_option(version=__version__, prog_name="codeslim")
 def main() -> None:
     """CodeSlim: Context Minimizer & LLM Guardrail CLI Engine."""
+    setup_logging(log_level="WARNING")
+
 
 
 @main.command()
@@ -192,7 +195,8 @@ def bot_serve(host: str, port: str | int, auto_commit: bool) -> None:
 @click.option("--host", default="127.0.0.1", help="Host IP address to bind web server")
 @click.option("--port", default=8000, type=int, help="Port to listen for web studio")
 @click.option("--open-browser/--no-open-browser", default=True, help="Automatically open browser window")
-def ui(host: str, port: int, open_browser: bool) -> None:
+@click.option("--reload", is_flag=True, default=False, help="Enable auto-reload on code changes")
+def ui(host: str, port: int, open_browser: bool, reload: bool) -> None:
     """Launch CodeSlim Web Studio Ultimate Edition interactive web workspace."""
     import webbrowser
 
@@ -210,7 +214,11 @@ def ui(host: str, port: int, open_browser: bool) -> None:
         except Exception:
             pass
 
-    uvicorn.run(app, host=host, port=port)
+    if reload:
+        uvicorn.run("codeslim.ui.server:create_ui_app", factory=True, host=host, port=port, reload=True)
+    else:
+        uvicorn.run(app, host=host, port=port)
+
 
 
 if __name__ == "__main__":

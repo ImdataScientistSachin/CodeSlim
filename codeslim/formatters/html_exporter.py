@@ -212,7 +212,8 @@ def generate_html_observatory_report(project_report: ProjectReport) -> str:
         "treemap_html": "".join(treemap_items),
         "total_scanned_files": str(len(sorted_file_reports)),
         "file_rows_html": "".join(file_rows),
-        "js_file_data_map": json.dumps(file_data_map).replace("<", "\\u003c"),
+        "js_file_data_map": json.dumps(file_data_map).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026"),
+
     }
 
     result_html = template_str

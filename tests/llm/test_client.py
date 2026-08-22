@@ -37,15 +37,6 @@ async def test_ollama_provider_payload_formatting(mocker):
     assert payload["model"] == "qwen2.5-coder:3b"
 
 
-def test_client_sha256_cache_key_generation():
-    """Fixes SEC-01: Verify SHA-256 cache key generation."""
-    client = LLMClient(temperature=0.1)
-    key1 = client._generate_cache_key("sys", "user1")
-    key2 = client._generate_cache_key("sys", "user2")
-    assert len(key1) == 64
-    assert key1 != key2
-
-
 @pytest.mark.asyncio
 async def test_invoke_structured_successful_parse(mocker):
     mock_response = MagicMock()

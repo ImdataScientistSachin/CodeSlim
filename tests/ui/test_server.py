@@ -72,6 +72,41 @@ def test_ui_export_html_endpoint(tmp_path):
     test_file = tmp_path / "sample.py"
     test_file.write_text("import sys\ndef hello(): pass\n", encoding="utf-8")
 
-    response = client.get(f"/api/v1/export-html?directory={tmp_path}")
+    response = client.get(f"/api/v1/export-html?directory={tmp_path}&download=true")
     assert response.status_code == 200
     assert "<!DOCTYPE html>" in response.text
+    assert "Content-Disposition" in response.headers
+    assert 'attachment; filename="observatory_report.html"' in response.headers["Content-Disposition"]
+
+
+def test_ui_export_html_endpoint_inline(tmp_path):
+    test_file = tmp_path / "sample.py"
+    test_file.write_text("import sys\ndef hello(): pass\n", encoding="utf-8")
+
+    response = client.get(f"/api/v1/export-html?directory={tmp_path}&download=false")
+    assert response.status_code == 200
+    assert "<!DOCTYPE html>" in response.text
+    assert "Content-Disposition" not in response.headers
+
+
+def test_ui_export_html_endpoint_invalid_directory():
+    response = client.get("/api/v1/export-html?directory=non_existent_directory_12345")
+    assert response.status_code == 404
+    assert "not found" in response.json()["detail"]
+
+
+def test_ui_export_html_snippet_endpoint():
+    code_sample = "import sys\nimport os\n\ndef foo():\n    return 42\n"
+    response = client.post("/api/v1/export-html-snippet?download=true", json={"code": code_sample, "filename": "input.py"})
+    assert response.status_code == 200
+    assert "<!DOCTYPE html>" in response.text
+    assert "Content-Disposition" in response.headers
+    assert 'attachment; filename="observatory_report.html"' in response.headers["Content-Disposition"]
+
+
+def test_ui_export_html_snippet_empty():
+    response = client.post("/api/v1/export-html-snippet", json={"code": "   ", "filename": "input.py"})
+    assert response.status_code == 400
+    assert "Empty code snippet" in response.json()["detail"]
+
+

@@ -209,39 +209,4 @@ class ASTAnalyzer(BaseAnalyzer):
             "relative_imports": relative,
         }
 
-    def extract_local_context(self, file_path: Path) -> dict[str, Any]:
-        """
-        Extract top-level functions, classes, and imports for local context.
 
-        Args:
-            file_path: Path to target file.
-
-        Returns:
-            Dict containing top-level function names, class names, and import statements.
-        """
-        if not file_path.exists():
-            return {"top_level_functions": [], "classes": [], "imports": []}
-
-        try:
-            tree = ast.parse(file_path.read_text(encoding="utf-8"))
-        except Exception:
-            return {"top_level_functions": [], "classes": [], "imports": []}
-
-        functions: list[str] = []
-        classes: list[str] = []
-
-        for node in tree.body:
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                functions.append(node.name)
-            elif isinstance(node, ast.ClassDef):
-                classes.append(node.name)
-
-        import_visitor = ImportVisitor()
-        import_visitor.visit(tree)
-        imports = [imp["statement"] for imp in import_visitor.imports]
-
-        return {
-            "top_level_functions": functions,
-            "classes": classes,
-            "imports": imports,
-        }

@@ -63,7 +63,7 @@ It operates on an established industry reality: **AI coding assistants (Copilot,
 
 ### 2.1 The Problem: Autoregressive Token Bloat
 
-AI coding assistants generate code token-by-token. Because LLMs predict the *most statistically probable next token*, they lean toward **verbose, formulaic, and overly defensive code structures**. An LLM optimizes for *"Does this satisfy the prompt?"* — not *"Is this the minimum viable expression of logic?"*
+AI coding assistants generate code token-by-token. Because LLMs predict the _most statistically probable next token_, they lean toward **verbose, formulaic, and overly defensive code structures**. An LLM optimizes for _"Does this satisfy the prompt?"_ — not _"Is this the minimum viable expression of logic?"_
 
 This introduces four major production vulnerabilities:
 
@@ -74,14 +74,14 @@ This introduces four major production vulnerabilities:
 
 ### 2.2 Quantified Industry Data (2025–2026 Benchmarks)
 
-| Metric | Benchmark Data | Primary Source | Production Impact |
-|---|---|---|---|
-| **Defect Multiplier** | AI-generated code contains **1.7x more bugs** than human code | CodeRabbit 2026 | 🔴 Critical |
-| **Code Duplication** | AI code exhibits **up to 8x more duplication** | Pure Math AI | 🔴 Critical |
-| **Developer Trust** | **96% of engineers** distrust unverified AI-generated code | Sonar / Stack Overflow 2026 | 🔴 Critical |
-| **PR Size Inflation** | Average PR size grew by **154%** post-AI adoption | Google DORA 2025 | 🟡 Major |
-| **Hallucination Rate** | **5.2% to 21.7%** of AI package suggestions are fake | USENIX Security 2025 | 🔴 Critical |
-| **Code Reduction** | Production reduction of **31.7% LOC** achieved by CodeSlim | Dev.to Production Benchmarks | ✅ Proven |
+| Metric                 | Benchmark Data                                                | Primary Source               | Production Impact |
+| ---------------------- | ------------------------------------------------------------- | ---------------------------- | ----------------- |
+| **Defect Multiplier**  | AI-generated code contains **1.7x more bugs** than human code | CodeRabbit 2026              | 🔴 Critical       |
+| **Code Duplication**   | AI code exhibits **up to 8x more duplication**                | Pure Math AI                 | 🔴 Critical       |
+| **Developer Trust**    | **96% of engineers** distrust unverified AI-generated code    | Sonar / Stack Overflow 2026  | 🔴 Critical       |
+| **PR Size Inflation**  | Average PR size grew by **154%** post-AI adoption             | Google DORA 2025             | 🟡 Major          |
+| **Hallucination Rate** | **5.2% to 21.7%** of AI package suggestions are fake          | USENIX Security 2025         | 🔴 Critical       |
+| **Code Reduction**     | Production reduction of **31.7% LOC** achieved by CodeSlim    | Dev.to Production Benchmarks | ✅ Proven         |
 
 ---
 
@@ -114,12 +114,12 @@ Existing static analyzers were designed for **human developer mistakes**, not **
                  └────────────────────────────────┘
 ```
 
-| Tool | Focus Area | Why It Fails for AI Bloat | CodeSlim's Advantage |
-|---|---|---|---|
-| **Ruff / Flake8** | Syntax & style formatting | Passes bloated AI code since syntax is valid | Detects structural bloat & cognitive nesting depth |
-| **SonarQube** | Rule-based code smells | Ignores task intent & hallucinated package APIs | Integrates AST sensors + PyPI registry checks |
-| **CodeRabbit** | PR markdown comments | Posts text comments; cannot rewrite source code | Generates behavior-preserving code & verified diffs |
-| **DepScope** | Standalone import scanner | Scans package imports only; no code minimization | Integrates registry lookups into a 4-stage optimizer |
+| Tool              | Focus Area                | Why It Fails for AI Bloat                        | CodeSlim's Advantage                                 |
+| ----------------- | ------------------------- | ------------------------------------------------ | ---------------------------------------------------- |
+| **Ruff / Flake8** | Syntax & style formatting | Passes bloated AI code since syntax is valid     | Detects structural bloat & cognitive nesting depth   |
+| **SonarQube**     | Rule-based code smells    | Ignores task intent & hallucinated package APIs  | Integrates AST sensors + PyPI registry checks        |
+| **CodeRabbit**    | PR markdown comments      | Posts text comments; cannot rewrite source code  | Generates behavior-preserving code & verified diffs  |
+| **DepScope**      | Standalone import scanner | Scans package imports only; no code minimization | Integrates registry lookups into a 4-stage optimizer |
 
 ---
 
@@ -189,6 +189,7 @@ CodeSlim follows a **deterministic-first pipeline architecture**. Fast static an
 ## 5. COMPLETE PIPELINE ENGINE BREAKDOWN
 
 ### Stage 1: Static Sensor Node
+
 - **Radon Engine**: Computes Cyclomatic Complexity (CC), Maintainability Index (MI), and Raw LOC.
 - **Lizard Engine**: Computes Cognitive Complexity and NLOC (Non-Comment Lines of Code).
 - **Vulture Engine**: Scans for dead code statements, unused variables, and unreachable function branches (confidence threshold $\ge 80$).
@@ -198,20 +199,24 @@ CodeSlim follows a **deterministic-first pipeline architecture**. Fast static an
   $$\text{BloatScore} = \min\left(100.0, \, 0.30 \times \text{CC} + 0.25 \times \text{Nesting} + 0.20 \times \text{DeadLines} + 0.15 \times \text{Cognitive} + 0.10 \times \text{Duplication}\right)$$
 
 ### Stage 2: Context Minimizer Node
+
 - **LibCST Lossless Transformer**: Prunes module/function docstrings and dead code lines while preserving 100% of formatting, comments, and spacing.
 - **`DocstringCompressor`**: Uses NLTK tokenization and scikit-learn TF-IDF score ranking to compress verbose docstrings to top-k informative sentences.
 - **Token Budget Engine**: Calculates exact token counts via `tiktoken` (cl100k_base) and enforces hard token caps.
 
 ### Stage 2.5: Deterministic Fix Engine (Node 2.5)
+
 - **Zero-LLM Cost Auto-Purge**: Automatically executes LibCST CST transformations to purge unused imports and dead variables.
 - **100% Deterministic Guarantee**: Operates without calling any LLM, guaranteeing zero API costs and 0% risk of AI hallucinations.
 
 ### Stage 3: Chunked LLM Refactor Node
+
 - **Micro-Targeted Extraction**: Extracts only complex functions ($\text{CC} > 10$) instead of sending whole files.
 - **Dual Provider Chain**: Local Ollama (`qwen2.5-coder:3b`) $\rightarrow$ OpenAI Cloud (`gpt-4o-mini`) $\rightarrow$ Node 2.5 Fallback.
 - **Guard Clause Transformation**: Rewrites nested conditionals (6–9 levels deep) into flat early returns.
 
 ### Stage 4: AST Guardrail Safety Gate
+
 - **`ASTInvariantGate`**: Verifies 4 strict AST invariants between original and proposed code:
   1. `ast.parse()` syntax validity.
   2. Public function & class signature set preservation.
@@ -253,26 +258,30 @@ CodeSlim is engineered to run on consumer hardware (e.g. **16GB RAM, GTX 1650 4G
 
 CodeSlim categorizes every proposed optimization into a **3-Tier Confidence System**:
 
-| Tier | Category | Criteria | Automated Action | Visual Indicator |
-|---|---|---|---|---|
-| **🟢 Tier 1** | **Auto-Safe** | Unused import removal, dead variable deletion, whitespace cleanup | Applied automatically (`--apply`) | `🟢 Auto-Safe` |
-| **🟡 Tier 2** | **Suggest** | Logic simplification, early return conversion, guard clause rewrite | Recommended for developer review | `🟡 Suggest` |
-| **🔴 Tier 3** | **Flag Only** | Structural class removal, function extraction, API type shifts | Flagged for senior dev review | `🔴 Flag Only` |
+| Tier          | Category      | Criteria                                                            | Automated Action                  | Visual Indicator |
+| ------------- | ------------- | ------------------------------------------------------------------- | --------------------------------- | ---------------- |
+| **🟢 Tier 1** | **Auto-Safe** | Unused import removal, dead variable deletion, whitespace cleanup   | Applied automatically (`--apply`) | `🟢 Auto-Safe`   |
+| **🟡 Tier 2** | **Suggest**   | Logic simplification, early return conversion, guard clause rewrite | Recommended for developer review  | `🟡 Suggest`     |
+| **🔴 Tier 3** | **Flag Only** | Structural class removal, function extraction, API type shifts      | Flagged for senior dev review     | `🔴 Flag Only`   |
 
 ---
 
 ## 8. OBSERVATORY UI, CLI & DEPLOYMENT INTERFACES
 
 ### Interactive Web Studio UI (`codeslim ui`)
+
 FastAPI web interface featuring single-file live surgery, full codebase scanning, Tokyo Night visual treemaps, and interactive diff viewers at `http://localhost:8000`.
 
 ### Rich Terminal Observatory (`codeslim scan`)
+
 Terminal dashboard with real-time progress bars, bloat score color gauges, cross-file phantom function detection, and hallucination spread metrics.
 
 ### GitHub PR Auto-Fix Bot (`codeslim bot`)
+
 FastAPI webhook receiver (`http://localhost:8000/webhook`) that listens to GitHub `pull_request` events, runs CodeSlim analysis on changed files, and posts automated markdown PR review comments with unified diffs.
 
 ### Git Pre-Commit Guardrail Hook (`codeslim install-hooks`)
+
 One-click installer command (`codeslim install-hooks`) that configures local `.git/hooks/pre-commit` scripts to reject bloat and syntax corruption automatically before `git commit`.
 
 ---
@@ -314,4 +323,4 @@ codeslim install-hooks
 
 ---
 
-*CodeSlim System Architecture & Project Overview · Version 3.0 Production Edition*
+_CodeSlim System Architecture & Project Overview · Version 3.0 Production Edition_

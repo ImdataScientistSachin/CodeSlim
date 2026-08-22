@@ -705,9 +705,50 @@ def calculate_tax(income):
             }
         }
 
-        function handleExportHTML() {
-            window.location.href = '/api/v1/export-html?directory=.';
+        async function handleExportHTML() {
+            document.getElementById('footer-status').innerText = 'Generating & preparing HTML Observatory download...';
+            try {
+                const isObservatoryTab = document.getElementById('observatory-tab').classList.contains('active');
+                let res;
+
+                if (isObservatoryTab) {
+                    // Export whole codebase scan
+                    res = await fetch('/api/v1/export-html?directory=.&download=true');
+                } else {
+                    // Export current code snippet from editor
+                    const code = document.getElementById('code-input').value;
+                    if (!code.trim()) {
+                        alert('⚠️ Please enter or load a Python file snippet before exporting.');
+                        document.getElementById('footer-status').innerText = 'Export cancelled: Empty editor.';
+                        return;
+                    }
+                    res = await fetch('/api/v1/export-html-snippet?download=true', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code: code, filename: 'input.py' })
+                    });
+                }
+
+                if (!res.ok) {
+                    throw new Error('Export server returned status ' + res.status);
+                }
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'observatory_report.html';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                document.getElementById('footer-status').innerText = '✅ Interactive HTML Observatory downloaded successfully!';
+            } catch (e) {
+                alert('❌ Error downloading HTML Observatory: ' + e.message);
+                document.getElementById('footer-status').innerText = 'Download failed: ' + e.message;
+            }
         }
+
 
         async function handleInstallGitHook() {
             document.getElementById('footer-status').innerText = 'Installing Git pre-commit hook...';
