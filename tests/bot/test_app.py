@@ -118,3 +118,14 @@ def test_webhook_pr_opened_schedules_background_task(mock_pr_handler_cls):
     assert data["status"] == "accepted"
     assert data["pr_number"] == 10
     assert data["action"] == "opened"
+
+
+def test_webhook_alias_endpoint():
+    app = create_bot_app(github_token="test_token", webhook_secret="")
+    client = TestClient(app)
+
+    headers = {"X-GitHub-Event": "ping"}
+    resp = client.post("/webhook", json={"zen": "Testing alias"}, headers=headers)
+
+    assert resp.status_code == 202
+    assert resp.json()["status"] == "pong"

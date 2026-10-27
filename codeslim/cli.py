@@ -46,12 +46,13 @@ def main() -> None:
     "--format",
     "-f",
     "output_format",
-    type=click.Choice(["rich", "json", "github_pr"]),
+    type=click.Choice(["rich", "json", "github_pr", "github-pr"]),
     default="rich",
     help="Output format",
 )
+@click.option("--output", "-o", "output_path", type=click.Path(path_type=Path), default=None, help="Save report to file")
 @click.option("--max-tokens", type=int, default=4096, help="Max token budget")
-def analyze(target_path: Path, output_format: str, max_tokens: int) -> None:
+def analyze(target_path: Path, output_format: str, output_path: Path | None, max_tokens: int) -> None:
     """Analyze Python file(s) for code bloat, complexity, and dead code."""
     files = [target_path] if target_path.is_file() else collect_target_files(target_path)
     if not files:
@@ -59,16 +60,25 @@ def analyze(target_path: Path, output_format: str, max_tokens: int) -> None:
         return
 
     orchestrator = PipelineOrchestrator(max_token_budget=max_tokens)
+    fmt = output_format.replace("-", "_")
+    output_buffer = []
 
     for file_path in files:
         report = asyncio.run(orchestrator.run_pipeline(file_path, no_llm=True))
 
-        if output_format == "json":
-            click.echo(format_json_report(report))
-        elif output_format == "github_pr":
-            click.echo(format_github_pr_report(report))
+        if fmt == "json":
+            content = format_json_report(report)
+            click.echo(content)
+            output_buffer.append(content)
+        elif fmt == "github_pr":
+            content = format_github_pr_report(report)
+            click.echo(content)
+            output_buffer.append(content)
         else:
             console.print(format_rich_report(report))
+
+    if output_path and output_buffer:
+        output_path.write_text("\n\n".join(output_buffer), encoding="utf-8")
 
 
 @main.command()
@@ -79,7 +89,7 @@ def analyze(target_path: Path, output_format: str, max_tokens: int) -> None:
     "--format",
     "-f",
     "output_format",
-    type=click.Choice(["rich", "json", "github_pr"]),
+    type=click.Choice(["rich", "json", "github_pr", "github-pr"]),
     default="rich",
     help="Output format",
 )
@@ -102,9 +112,10 @@ def optimize(file_path: Path, apply: bool, backup: bool, output_format: str, no_
         file_path.write_text(report.optimized_code, encoding="utf-8")
         console.print(f"[bold green]Successfully applied optimizations to:[/bold green] {file_path}")
 
-    if output_format == "json":
+    fmt = output_format.replace("-", "_")
+    if fmt == "json":
         click.echo(format_json_report(report))
-    elif output_format == "github_pr":
+    elif fmt == "github_pr":
         click.echo(format_github_pr_report(report))
     else:
         console.print(format_rich_report(report))

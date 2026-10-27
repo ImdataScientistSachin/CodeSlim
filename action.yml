@@ -14,9 +14,9 @@ runs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    - run: pip install codeslim
+    - run: pip install codeslim || pip install -e .
       shell: bash
-    - run: codeslim analyze ${{ inputs.path }} --format github-pr --output codeslim_report.json
+    - run: codeslim analyze ${{ inputs.path }} --format github_pr --output codeslim_report.json
       shell: bash
       env:
         GROQ_API_KEY: ${{ inputs.groq-api-key }}

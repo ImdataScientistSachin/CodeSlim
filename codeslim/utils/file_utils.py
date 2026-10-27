@@ -69,12 +69,31 @@ def is_ignored(file_path: Path, root_dir: Path, ignore_patterns: set[str]) -> bo
     Returns:
         True if path matches an ignore rule; False otherwise.
     """
-    rel_path_str = str(file_path.relative_to(root_dir)).replace("\\", "/")
+    try:
+        rel_path = file_path.relative_to(root_dir)
+    except ValueError:
+        rel_path = file_path
+
+    rel_path_str = str(rel_path).replace("\\", "/")
+    parts = set(rel_path.parts)
 
     for pattern in ignore_patterns:
         clean_pattern = pattern.strip()
+        if not clean_pattern or clean_pattern.startswith("#"):
+            continue
 
         if fnmatch.fnmatch(rel_path_str, clean_pattern) or fnmatch.fnmatch(file_path.name, clean_pattern):
+            return True
+
+        # Handle **/ prefix for top-level matches (e.g., **/venv/** matches venv/...)
+        if clean_pattern.startswith("**/"):
+            stripped = clean_pattern[3:]
+            if fnmatch.fnmatch(rel_path_str, stripped) or fnmatch.fnmatch(rel_path_str, f"*/{stripped}"):
+                return True
+
+        # Handle directory name matching across parts (e.g. **/node_modules/**)
+        raw_name = clean_pattern.strip("*/")
+        if raw_name and raw_name in parts:
             return True
 
         if clean_pattern.endswith("/") and rel_path_str.startswith(clean_pattern.rstrip("/")):

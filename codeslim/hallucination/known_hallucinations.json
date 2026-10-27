@@ -1,4 +1,12 @@
 {
-  "pd_utils": "Fake pandas utility package",
-  "sklearn_extra": "Non-existent scikit-learn package"
+  "pd_utils": "Non-existent pandas helper package often hallucinated by LLMs. Use pandas directly.",
+  "sklearn_extra": "Non-existent scikit-learn helper package. Use sklearn or scikit-learn-extra.",
+  "np_helpers": "Non-existent numpy helper package. Use numpy functions directly.",
+  "tf_utils": "Non-existent TensorFlow wrapper package. Use tf.keras or tensorflow directly.",
+  "torch_helpers": "Non-existent PyTorch utility package. Use torch.nn or torchvision.",
+  "hyperopt_utils": "Non-existent hyperopt wrapper package often hallucinated by LLMs.",
+  "ml_optimizer": "Non-existent machine learning optimizer package. Use scipy.optimize or sklearn.",
+  "data_normalizer": "Non-existent data normalization package. Use sklearn.preprocessing or pandas.",
+  "keras_helpers": "Non-existent Keras helper package. Use tf.keras or keras directly.",
+  "requests_ext": "Non-existent requests extension. Use requests or httpx directly."
 }

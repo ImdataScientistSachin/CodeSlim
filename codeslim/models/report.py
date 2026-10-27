@@ -64,6 +64,7 @@ class CodeSlimReport(BaseModel):
     metrics: FileMetrics | None = Field(default=None, description="Raw static analysis metrics")
     errors: list[str] = Field(default_factory=list, description="Non-fatal execution errors")
     stages_completed: list[str] = Field(default_factory=list, description="Completed pipeline stages")
+    validation_passed: bool = Field(default=True, description="Whether AST invariant validation passed")
 
     @computed_field
     @property

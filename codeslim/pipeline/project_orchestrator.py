@@ -54,11 +54,10 @@ class ProjectOrchestrator:
             try:
                 report: CodeSlimReport = await pipeline.run_pipeline(file_p, no_llm=no_llm)
                 code_text = await asyncio.to_thread(file_p.read_text, encoding="utf-8")
-                dup_ratio = report.metrics.duplication_ratio if report.metrics else 0.0
-                metrics = FileMetrics(
+                metrics = report.metrics or FileMetrics(
                     file_path=str(file_p),
                     total_lines=report.original_lines,
-                    duplication_ratio=dup_ratio,
+                    duplication_ratio=report.metrics.duplication_ratio if report.metrics else 0.0,
                 )
                 return report, metrics, file_p.name, code_text
             except Exception as exc:

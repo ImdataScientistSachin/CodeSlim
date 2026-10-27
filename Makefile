@@ -16,8 +16,17 @@ coverage:
 	pytest tests/ --cov=codeslim --cov-report=html
 
 lint:
-	ruff check codeslim/ tests/
+	ruff check codeslim/ tests/ scripts/
 	mypy codeslim/
+
+benchmark:
+	python scripts/benchmark.py
+
+ui:
+	codeslim ui
+
+bot:
+	codeslim bot serve --host 0.0.0.0 --port 8000
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +

@@ -6,12 +6,13 @@ Enforces structured JSON completions and escalating retry prompts on schema fail
 """
 
 import json
-from typing import TypeVar
+from typing import Any, TypeVar
 
 import httpx
 from pydantic import BaseModel
 
 from codeslim.config import get_settings
+from codeslim.llm.grammars import get_grammar_template
 from codeslim.utils.logger import get_logger
 
 log = get_logger("codeslim.llm.client")
@@ -20,20 +21,21 @@ T = TypeVar("T", bound=BaseModel)
 
 
 class OllamaProvider:
-    """Ollama local LLM API provider."""
+    """Ollama local LLM API provider with GBNF grammar constrained decoding."""
 
     def __init__(self, base_url: str, model_name: str, temperature: float = 0.1) -> None:
         self.base_url = base_url.rstrip("/")
         self.model_name = model_name
         self.temperature = temperature
 
-    async def generate(self, system_prompt: str, user_prompt: str) -> str:
+    async def generate(self, system_prompt: str, user_prompt: str, grammar: str | None = None) -> str:
         """
         Send generation request to Ollama endpoint.
         Fixes BUG-09: Passes temperature inside `options` dictionary per Ollama REST spec.
+        Supports optional GBNF grammar parameter for logit-level schema caging.
         """
         url = f"{self.base_url}/api/generate"
-        payload = {
+        payload: dict[str, Any] = {
             "model": self.model_name,
             "prompt": f"{system_prompt}\n\n{user_prompt}",
             "stream": False,
@@ -41,6 +43,8 @@ class OllamaProvider:
                 "temperature": self.temperature,
             },
         }
+        if grammar:
+            payload["grammar"] = grammar
 
         async with httpx.AsyncClient(timeout=120.0) as client:
             response = await client.post(url, json=payload)
@@ -57,8 +61,8 @@ class OpenAIProvider:
         self.model_name = model_name
         self.temperature = temperature
 
-    async def generate(self, system_prompt: str, user_prompt: str) -> str:
-        """Send completion request to OpenAI API."""
+    async def generate(self, system_prompt: str, user_prompt: str, grammar: str | None = None) -> str:
+        """Send completion request to OpenAI API (grammar parameter accepted for interface parity)."""
         if not self.api_key:
             raise ValueError("OpenAI API key not configured")
 
@@ -83,6 +87,7 @@ class LLMClient:
     """
     Main LLM client facade for CodeSlim.
     Supports local-first Ollama execution with OpenAI cloud fallback.
+    Empowered with GBNF grammar caging for ultra-compact models (e.g. qwen2.5-coder:1.5b).
     """
 
     def __init__(
@@ -109,18 +114,18 @@ class LLMClient:
             temperature=self.temperature,
         )
 
-    async def invoke(self, system_prompt: str, user_prompt: str) -> str:
+    async def invoke(self, system_prompt: str, user_prompt: str, grammar: str | None = None) -> str:
         """
-        Execute completion prompt with local-first fallback logic.
+        Execute completion prompt with local-first fallback logic and optional GBNF grammar.
         """
         try:
-            log.info("invoking_ollama_primary", model=self.primary_model)
-            return await self.ollama.generate(system_prompt, user_prompt)
+            log.info("invoking_ollama_primary", model=self.primary_model, has_grammar=bool(grammar))
+            return await self.ollama.generate(system_prompt, user_prompt, grammar=grammar)
         except Exception as exc:
             log.warning("ollama_primary_failed_falling_back", error=str(exc))
             if self.settings.openai_api_key:
                 log.info("invoking_openai_fallback", model=self.fallback_model)
-                return await self.openai.generate(system_prompt, user_prompt)
+                return await self.openai.generate(system_prompt, user_prompt, grammar=grammar)
             raise RuntimeError(f"Ollama execution failed and OpenAI API key not configured: {exc}") from exc
 
     async def refactor_function_chunk(
@@ -128,12 +133,13 @@ class LLMClient:
         function_code: str,
         function_name: str,
         cc_score: int,
+        grammar: str | None = None,
     ) -> str:
         """
         Refactor a single extracted function using a focused prompt.
 
         Sends only the function body (not the whole file), which dramatically
-        improves 3B model compliance and prevents class header deletion.
+        improves compact model compliance (e.g. qwen2.5-coder:1.5b) and prevents class header deletion.
 
         Returns:
             Refactored function source code string, or original if LLM fails.
@@ -152,8 +158,13 @@ class LLMClient:
             f"```python\n{function_code}\n```\n\n"
             f"Return ONLY the refactored Python function code."
         )
+        # Apply python function GBNF grammar template if requested or running compact models
+        target_grammar = grammar
+        if target_grammar is None and "1.5b" in self.primary_model.lower():
+            target_grammar = get_grammar_template("python_function")
+
         try:
-            raw = await self.invoke(system_prompt, user_prompt)
+            raw = await self.invoke(system_prompt, user_prompt, grammar=target_grammar)
             cleaned = raw.strip()
             if cleaned.startswith("```python"):
                 cleaned = cleaned[9:]
@@ -171,15 +182,19 @@ class LLMClient:
         system_prompt: str,
         user_prompt: str,
         response_model: type[T],
+        grammar: str | None = None,
     ) -> T:
         """
         Execute prompt and parse response into Pydantic model T.
-        Escalates prompt with specific JSON error feedback on retries.
+        Applies GBNF grammar constraints for schema adherence and escalates on retries.
         """
         current_user_prompt = user_prompt
+        target_grammar = grammar
+        if target_grammar is None and response_model.__name__ == "LLMRefactorResponse":
+            target_grammar = get_grammar_template("json_refactor")
 
         for attempt in range(1, self.max_retries + 1):
-            raw_response = await self.invoke(system_prompt, current_user_prompt)
+            raw_response = await self.invoke(system_prompt, current_user_prompt, grammar=target_grammar)
 
             cleaned_json = raw_response.strip()
             if cleaned_json.startswith("```json"):
@@ -216,3 +231,4 @@ class LLMClient:
         raise ValueError(
             f"Failed to parse LLM response into {response_model.__name__} after {self.max_retries} attempts"
         )
+

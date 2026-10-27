@@ -60,6 +60,7 @@ class PipelineState(TypedDict, total=False):
     optimized_code: str | None
     unified_diff: str | None
     confidence_tiers: dict[str, Any] | None
+    critic_feedback: str | None
     # List append reducer for AST error trace tracking across critic retries
     ast_errors: Annotated[list[str], operator.add]
     retry_count: int
@@ -178,8 +179,9 @@ async def minimizer_node(state: PipelineState) -> dict[str, Any]:
     # Step 2: NLTK TF-IDF Docstring compression
     pruned = DocstringCompressor().compress_code_docstrings(pruned)
 
-    # Calculate Bloat Score
-    bloat_score = calculate_bloat_score(file_metrics) if file_metrics else 0.0
+    # Calculate Bloat Score (normalized to 0-100% scale)
+    raw_bloat = calculate_bloat_score(file_metrics) if file_metrics else 0.0
+    bloat_score = raw_bloat * 100.0 if raw_bloat <= 1.0 else raw_bloat
     tokens_saved = len(raw_code) - len(pruned)
 
     return {
@@ -233,9 +235,12 @@ async def llm_refactor_node(state: PipelineState) -> dict[str, Any]:
         pruned_code=pruned_code,
     )
 
-    # Check if this is a reflective retry attempt
+    # Check if this is a reflective retry attempt with 1-shot AST error injection
+    critic_feedback = state.get("critic_feedback")
     ast_errors = state.get("ast_errors", [])
-    if ast_errors and state.get("retry_count", 0) > 0:
+    if critic_feedback and state.get("retry_count", 0) > 0:
+        user_prompt += critic_feedback
+    elif ast_errors and state.get("retry_count", 0) > 0:
         latest_error = ast_errors[-1]
         user_prompt += (
             f"\n\n[CRITICAL CORRECTION REQUIRED - RETRY ATTEMPT {state['retry_count']}]\n"
@@ -272,7 +277,8 @@ async def guardrail_node(state: PipelineState) -> dict[str, Any]:
     optimized_code = state.get("optimized_code") or raw_code
 
     gate = ASTInvariantGate()
-    if gate.is_safe(raw_code, optimized_code):
+    is_safe, violations = gate.validate(raw_code, optimized_code)
+    if is_safe:
         diff = generate_unified_diff(raw_code, optimized_code, state["target_path"])
         return {
             "validation_passed": True,
@@ -282,7 +288,7 @@ async def guardrail_node(state: PipelineState) -> dict[str, Any]:
 
     return {
         "validation_passed": False,
-        "ast_errors": ["AST invariant failure: public signature or decorator mutated by LLM"],
+        "ast_errors": violations or ["AST invariant failure: public signature or decorator mutated by LLM"],
         "stages_completed": ["guardrails"],
     }
 
@@ -302,15 +308,16 @@ def route_after_minimizer(state: PipelineState) -> Literal["deterministic_fix_no
         return "deterministic_fix_node"
 
     bloat_score = state.get("bloat_score", 0.0)
+    bloat_pct = bloat_score * 100.0 if bloat_score <= 1.0 else bloat_score
     file_metrics = state.get("file_metrics")
     max_cc = file_metrics.max_cyclomatic_complexity if file_metrics else 0
 
-    if bloat_score < 5.0 and max_cc <= 10:
-        # Fast exit — clean code (0 LLM cost)
-        return "report_node"
-    elif max_cc <= 10 and file_metrics and len(file_metrics.dead_code) > 0:
+    if max_cc <= 10 and file_metrics and len(file_metrics.dead_code) > 0:
         # Dead code only — Node 2.5 deterministic fix (0 LLM cost)
         return "deterministic_fix_node"
+    elif bloat_pct < 5.0 and max_cc <= 10:
+        # Fast exit — clean code (0 LLM cost)
+        return "report_node"
     else:
         # Complex logic — LLM refactoring required
         return "llm_refactor_node"

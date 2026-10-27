@@ -14,6 +14,7 @@ from codeslim.bot.github_client import GitHubClient
 from codeslim.bot.models import GitHubPullRequestEvent
 from codeslim.models.report import CodeSlimReport
 from codeslim.pipeline.orchestrator import PipelineOrchestrator
+from codeslim.utils.diff_sieve import sieve_diff
 from codeslim.utils.logger import get_logger
 
 log = get_logger("codeslim.bot.pr_handler")
@@ -76,9 +77,7 @@ def format_pr_markdown_report(
                 )
             if rep.diff:
                 lines.append("\n```diff")
-                lines.append(rep.diff[:1500])  # Cap diff length for GitHub comment limit
-                if len(rep.diff) > 1500:
-                    lines.append("\n... [diff truncated for comment length]")
+                lines.append(sieve_diff(rep.diff, max_chars=2500, max_lines=60))
                 lines.append("```")
             lines.append("</details>\n")
 

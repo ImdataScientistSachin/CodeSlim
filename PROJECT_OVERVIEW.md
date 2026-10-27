@@ -215,14 +215,15 @@ CodeSlim follows a **deterministic-first pipeline architecture**. Fast static an
 - **Dual Provider Chain**: Local Ollama (`qwen2.5-coder:3b`) $\rightarrow$ OpenAI Cloud (`gpt-4o-mini`) $\rightarrow$ Node 2.5 Fallback.
 - **Guard Clause Transformation**: Rewrites nested conditionals (6–9 levels deep) into flat early returns.
 
-### Stage 4: AST Guardrail Safety Gate
+### Stage 4: AST Guardrail Safety Gate & 1-Shot Critic
 
 - **`ASTInvariantGate`**: Verifies 4 strict AST invariants between original and proposed code:
   1. `ast.parse()` syntax validity.
   2. Public function & class signature set preservation.
   3. Decorator preservation (`@staticmethod`, `@classmethod`, `@property`).
   4. Coroutine status preservation (`async def` $\rightarrow$ `async def`).
-- **Safety Rejection Circuit Breaker**: If any invariant fails, CodeSlim automatically rejects the LLM code patch and falls back to the deterministic LibCST fix.
+- **1-Shot AST Self-Repair Critic**: When an AST invariant fails, the pipeline provides the LLM with the exact syntax/signature error message and a 1-shot repair exemplar (`codeslim/pipeline/critic.py`), enabling autonomous single-loop recovery without human intervention.
+- **Safety Rejection Circuit Breaker**: If the invariant still fails after self-repair, CodeSlim automatically rejects the LLM code patch and falls back to the deterministic LibCST fix.
 
 ---
 
@@ -239,7 +240,7 @@ CodeSlim is engineered to run on consumer hardware (e.g. **16GB RAM, GTX 1650 4G
                YES            NO
                /               \
               ▼                 ▼
-   Ollama Local (3B)     OpenAI Cloud Fallback?
+   Ollama Local (1.5B/3B)   OpenAI Cloud Fallback?
    (Private & Free)        /              \
                          YES               NO
                          /                  \
@@ -248,8 +249,9 @@ CodeSlim is engineered to run on consumer hardware (e.g. **16GB RAM, GTX 1650 4G
                                     (100% Deterministic $0 Fix)
 ```
 
-- **Local Ollama Model**: `qwen2.5-coder:3b` (Q4_K_M quantization, requires ~2.2GB VRAM).
-- **Execution Latency**: ~25 tokens/second locally, ~200 tokens/second on Groq/OpenAI cloud.
+- **Local Ollama Models**: `qwen2.5-coder:1.5b` (ultra-lightweight ~1.1GB VRAM) or `qwen2.5-coder:3b` (~2.2GB VRAM).
+- **GBNF Grammar Logit Caging (`codeslim/llm/grammars.py`)**: For local lightweight models, generation logits are constrained via strict Backus-Naur Form grammars to guarantee 100% valid JSON refactoring schemas and pure Python function chunks.
+- **Execution Latency**: ~25 tokens/second locally, ~200 tokens/second on Groq/OpenAI cloud; 0.5–15ms for deterministic static surgery.
 - **SHA-256 Caching**: DiskCache stores LLM prompt completions using SHA-256 hashes, eliminating duplicate LLM calls across runs.
 
 ---
@@ -278,7 +280,7 @@ Terminal dashboard with real-time progress bars, bloat score color gauges, cross
 
 ### GitHub PR Auto-Fix Bot (`codeslim bot`)
 
-FastAPI webhook receiver (`http://localhost:8000/webhook`) that listens to GitHub `pull_request` events, runs CodeSlim analysis on changed files, and posts automated markdown PR review comments with unified diffs.
+FastAPI webhook receiver (`http://localhost:8000/webhook/github` or `/webhook`) that listens to GitHub `pull_request` events, runs CodeSlim analysis on changed files, and posts automated markdown PR review comments with unified diffs.
 
 ### Git Pre-Commit Guardrail Hook (`codeslim install-hooks`)
 

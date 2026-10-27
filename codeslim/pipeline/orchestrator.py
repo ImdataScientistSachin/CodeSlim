@@ -61,6 +61,7 @@ class PipelineOrchestrator:
             "diff": final_state.get("unified_diff"),
             "errors": final_state.get("errors", []),
             "stages_completed": final_state.get("stages_completed", []),
+            "validation_passed": final_state.get("validation_passed", True),
         }
 
         res = report_node(report_state)

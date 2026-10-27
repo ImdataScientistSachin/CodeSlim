@@ -39,10 +39,24 @@ def test_cli_analyze_json_format(tmp_path: Path):
 
 def test_cli_optimize_apply_with_backup(tmp_path: Path):
     test_file = tmp_path / "sample.py"
-    original_code = "def foo():\n    unused = 1\n    return 42\n"
+    original_code = "import os\n\ndef foo():\n    return 42\n"
     test_file.write_text(original_code)
 
     runner = CliRunner()
-    result = runner.invoke(main, ["optimize", str(test_file), "--no-llm"])
+    result = runner.invoke(main, ["optimize", str(test_file), "--no-llm", "--apply", "--backup"])
     assert result.exit_code == 0
     assert "sample.py" in result.output
+    assert (tmp_path / "sample.py.bak").exists()
+
+
+def test_cli_analyze_github_pr_format_and_output(tmp_path: Path):
+    test_file = tmp_path / "sample.py"
+    test_file.write_text("def foo():\n    pass\n")
+    out_file = tmp_path / "report.md"
+
+    runner = CliRunner()
+    result = runner.invoke(main, ["analyze", str(test_file), "--format", "github-pr", "--output", str(out_file)])
+    assert result.exit_code == 0
+    assert "CodeSlim Analysis Summary" in result.output
+    assert out_file.exists()
+    assert "CodeSlim Analysis Summary" in out_file.read_text(encoding="utf-8")

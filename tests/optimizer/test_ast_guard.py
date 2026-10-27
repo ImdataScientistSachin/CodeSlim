@@ -49,3 +49,17 @@ def test_ast_guard_missing_signature_rejected() -> None:
     orig = "def public_api(): pass\ndef helper(): pass"
     patched = "def helper(): pass"
     assert gate.is_safe(orig, patched) is False
+
+
+def test_ast_guard_validate_diagnostics() -> None:
+    """Test validate() returning specific diagnostic messages for mutations."""
+    gate = ASTInvariantGate()
+    orig = "@staticmethod\ndef calculate(x: int) -> int: return x"
+    patched = "def calculate(x: int, extra: int) -> int: return x"
+
+    is_safe, violations = gate.validate(orig, patched)
+    assert is_safe is False
+    assert len(violations) >= 2
+    assert any("Decorators mutated" in v for v in violations)
+    assert any("Signature arguments mutated" in v for v in violations)
+

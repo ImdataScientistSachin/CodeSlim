@@ -384,9 +384,12 @@ def report_node(state: dict[str, Any]) -> dict[str, Any]:
 
     state["stages_completed"].append("report")
 
+    raw_score = state.get("bloat_score", 0.0)
+    final_score = raw_score * 100.0 if raw_score <= 1.0 else raw_score
+
     report = CodeSlimReport(
         file_path=str(file_path),
-        bloat_score=state.get("bloat_score", 0.0) * 100.0,
+        bloat_score=min(100.0, max(0.0, final_score)),
         original_lines=raw_lines,
         optimized_lines=opt_lines if opt_lines != raw_lines else None,
         bloat_map=bloat_map,
@@ -396,6 +399,7 @@ def report_node(state: dict[str, Any]) -> dict[str, Any]:
         metrics=file_metrics,
         errors=state.get("errors", []),
         stages_completed=state.get("stages_completed", []),
+        validation_passed=state.get("validation_passed", True),
     )
 
     state["report"] = report

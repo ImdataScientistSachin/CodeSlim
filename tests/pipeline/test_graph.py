@@ -82,13 +82,16 @@ def test_route_after_guardrail():
 
 @pytest.mark.asyncio
 async def test_reflective_critic_node():
-    """Verifies reflective critic node increments retry counter."""
+    """Verifies reflective critic node increments retry counter and builds 1-shot repair prompt."""
     state: PipelineState = {
         "retry_count": 0,
-        "ast_errors": ["missing_signature: func_a deleted by LLM"],
+        "ast_errors": ["Missing public symbol: 'func_a' was deleted or renamed in refactored code."],
     }
     update = await reflective_critic_node(state)
     assert update["retry_count"] == 1
+    assert "critic_feedback" in update
+    assert "[1-SHOT AST REPAIR EXEMPLAR]" in update["critic_feedback"]
+    assert "Missing public symbol: 'func_a'" in update["critic_feedback"]
 
 
 @pytest.mark.asyncio

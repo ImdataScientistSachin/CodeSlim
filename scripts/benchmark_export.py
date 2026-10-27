@@ -9,8 +9,8 @@ import asyncio
 import time
 from pathlib import Path
 
-from codeslim.pipeline.project_orchestrator import ProjectOrchestrator
 from codeslim.formatters.html_exporter import generate_html_observatory_report
+from codeslim.pipeline.project_orchestrator import ProjectOrchestrator
 
 TARGET = str(Path(__file__).parent.parent / "codeslim")
 

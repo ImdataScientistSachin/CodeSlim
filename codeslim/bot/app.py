@@ -116,6 +116,7 @@ def create_bot_app(
             "auto_commit": auto_commit,
         }
 
+    @app.post("/webhook", status_code=status.HTTP_202_ACCEPTED)
     @app.post("/webhook/github", status_code=status.HTTP_202_ACCEPTED)
     async def handle_github_webhook(
         request: Request,

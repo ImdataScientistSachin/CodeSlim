@@ -37,7 +37,7 @@ def setup_logging(*, log_level: str = "INFO", json_output: bool = False) -> None
     else:
         renderer = structlog.dev.ConsoleRenderer(
             colors=True,
-            pad_event=35,
+            pad_event_to=35,
         )
 
     structlog.configure(

@@ -5,6 +5,7 @@ Renders CodeSlimReport objects as GitHub-Flavored Markdown for PR comments.
 """
 
 from codeslim.models.report import CodeSlimReport
+from codeslim.utils.diff_sieve import sieve_diff
 
 
 def format_github_pr_report(report: CodeSlimReport) -> str:
@@ -44,13 +45,14 @@ def format_github_pr_report(report: CodeSlimReport) -> str:
         lines.append("")
 
     if report.diff:
+        diff_text = sieve_diff(report.diff)
         lines.extend(
             [
                 "<details>",
                 "<summary>🔍 Click to view Unified Diff Preview</summary>",
                 "",
                 "```diff",
-                report.diff,
+                diff_text,
                 "```",
                 "",
                 "</details>",

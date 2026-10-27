@@ -6,5 +6,6 @@ repos:
         entry: codeslim analyze
         language: system
         types: [python]
-        args: ["--safe-only", "--format", "rich"]
+        args: ["--format", "rich"]
         pass_filenames: true
+

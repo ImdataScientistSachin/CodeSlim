@@ -61,7 +61,7 @@ markers = ["llm: tests that make real LLM calls (slow)"]
 
 [tool.ruff]
 line-length = 120
-exclude = ["tests/fixtures/*"]
+exclude = ["tests/fixtures/*", "examples/*"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
@@ -70,7 +70,7 @@ ignore = ["E501"]
 [tool.mypy]
 python_version = "3.11"
 plugins = ["pydantic.mypy"]
-exclude = ["tests/fixtures/.*"]
+exclude = ["tests/fixtures/.*", "examples/.*"]
 ignore_missing_imports = true
 warn_redundant_casts = true
 warn_unused_ignores = true

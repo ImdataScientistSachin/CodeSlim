@@ -171,7 +171,7 @@ def create_ui_app() -> FastAPI:
                 "grade": grade,
                 "tokens_saved": tokens_saved,
                 "confidence_tier": "Auto-Safe",
-                "ast_guardrail_passed": True,
+                "ast_guardrail_passed": report.validation_passed,
             }
         except Exception as exc:
             log.error("optimize_endpoint_failed", error=str(exc))
